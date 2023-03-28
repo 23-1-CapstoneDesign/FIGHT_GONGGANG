@@ -1,6 +1,6 @@
+import 'package:fighting_gonggang/Maintab.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home.dart';
 import 'registration_page.dart';
 
 
@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HomePage()),
+      MaterialPageRoute(builder: (context) => MaintabPage()),
     );
   }
 

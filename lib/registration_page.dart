@@ -5,6 +5,9 @@ class SignupPage extends StatelessWidget {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  int _currentIndex = 0;
+
+
 
   @override
   Widget build(BuildContext context) {

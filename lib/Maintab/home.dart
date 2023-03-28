@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
+
+import '../Layout/navbar.dart';
 class HomePage extends StatelessWidget {
 
   DateTime? _lastPressedTime; // 마지막으로 뒤로가기 버튼을 누른 시간
@@ -25,9 +27,9 @@ class HomePage extends StatelessWidget {
       }
     },
         child: Scaffold(
-          appBar: AppBar(
-            title: Text('홈'),
-          ),
+          // appBar: AppBar(
+          //    title: Text('홈'),
+          // ),
           body: Container(
 
             padding: EdgeInsets.all(16.0),
