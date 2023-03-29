@@ -1,25 +1,17 @@
 import 'package:fighting_gonggang/Maintab.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'registration_page.dart';
-
-
+import 'SignUp.dart';
 
 class LoginPage extends StatefulWidget {
-
-
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _rememberMe=false;
   bool _autoLogin = false;
-
 
   @override
   void initState() {
@@ -37,7 +29,6 @@ class _LoginPageState extends State<LoginPage> {
         _usernameController.text = username;
         _passwordController.text = password;
         setState(() {
-          _rememberMe = true;
           _autoLogin = true;
         });
         _login();
@@ -50,18 +41,18 @@ class _LoginPageState extends State<LoginPage> {
     final username = _usernameController.text;
     final password = _passwordController.text;
     // 로그인 처리 로직
-    if (_rememberMe) {
+    if (_autoLogin) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('username', username);
       prefs.setString('password', password);
       prefs.setBool('autoLogin', true);
     }
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => MaintabPage()),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            SizedBox(height: 10.0),
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(labelText: '아이디'),
@@ -83,51 +75,62 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
               decoration: InputDecoration(labelText: '비밀번호'),
             ),
+
             Row(
-              children: <Widget>[
-                Checkbox(
-                  value: _rememberMe,
-                  onChanged: (value) {
-                    setState(() {
-                      _rememberMe = value!;
-                    });
-                  },
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(minimumSize: (Size(200, 40))),
+                  onPressed: _login,
+                  child: Text('로그인'),
                 ),
-                Text('로그인 정보 기억하기'),
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(minimumSize: (Size(200, 40))),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignupPage()),
+                    );
+                  },
+                  child: Text('회원가입'),
+                )
+              ],
+            ),
+            SizedBox(height: 1.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('비밀번호를 잊으셨나요?'),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignupPage()),
+                    );
+                  },
+                  child: Text('비밀번호 찾기'),
+
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Checkbox(
                   value: _autoLogin,
                   onChanged: (value) {
                     setState(() {
                       _autoLogin = value!;
-                      if (_autoLogin) {
-                        _rememberMe = true;
-                      }
                     });
                   },
                 ),
                 Text('자동 로그인'),
               ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: ElevatedButton(
-                onPressed: _login,
-                child: Text('로그인'),
-              ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignupPage()),
-                );
-              },
-              child: Text('회원가입'),
             ),
           ],
         ),

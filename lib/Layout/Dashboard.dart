@@ -1,3 +1,4 @@
+import 'package:fighting_gonggang/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,8 +41,11 @@ class dashboard extends StatelessWidget {
 // 로그아웃 처리 로직
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.remove('autoLogin');
+          Navigator.pushAndRemoveUntil (
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,);
 
-          Navigator.pushReplacementNamed(context, '/login');
 
         },
       ),

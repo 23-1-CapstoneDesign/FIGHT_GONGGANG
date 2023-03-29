@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:core';
-
+import 'package:mysql1/mysql1.dart';
 class SignupPage extends StatelessWidget {
   final _nameController = TextEditingController();
+  final _departmentController =TextEditingController();
+  final _studentnumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _styleController = TextEditingController();
   int _currentIndex = 0;
 
 
@@ -25,6 +28,10 @@ class SignupPage extends StatelessWidget {
               decoration: InputDecoration(labelText: '이름'),
             ),
             TextField(
+              controller: _departmentController,
+              decoration: InputDecoration(labelText: '학과'),
+            ),
+            TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: '이메일'),
             ),
@@ -41,7 +48,7 @@ class SignupPage extends StatelessWidget {
                   final email = _emailController.text;
                   final password = _passwordController.text;
                   // 회원가입 로직 처리
-
+              print('');
                 },
                 child: Text('회원가입'),
               ),

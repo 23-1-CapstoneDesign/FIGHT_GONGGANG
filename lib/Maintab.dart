@@ -19,7 +19,6 @@ class _MaintabPageState extends State<MaintabPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My App"),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

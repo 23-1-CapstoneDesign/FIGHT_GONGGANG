@@ -1,6 +1,7 @@
 # fighting_gonggang
 
-싸우자 공강아
+
+리드미는 쫌만 있따 쓰자...
 
 ## Getting Started
 
