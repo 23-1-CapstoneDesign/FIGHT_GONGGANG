@@ -1,7 +1,9 @@
 import 'package:fighting_gonggang/Maintab.dart';
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
+import 'dbconfig/dbconnect.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -35,7 +37,19 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+  Future<String> test() async {
+  Future<MySqlConnection> conn = config();
 
+    Future<Results> result = conn.then(  (val){
+      return val.query("SHOW DATABASE");
+    });
+    Future<String> value= result.then((val){
+      return val.toString();
+    }) ;
+
+    return value;
+
+  }
   // 로그인 처리
   void _login() async {
     final username = _usernameController.text;
@@ -46,6 +60,7 @@ class _LoginPageState extends State<LoginPage> {
       prefs.setString('username', username);
       prefs.setString('password', password);
       prefs.setBool('autoLogin', true);
+      prefs.setBool('isLogin',true);
     }
 
     Navigator.push(
@@ -75,6 +90,8 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
               decoration: InputDecoration(labelText: '비밀번호'),
             ),
+
+
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -130,8 +147,22 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 Text('자동 로그인'),
+
               ],
             ),
+            FutureBuilder(
+                future: test(),
+                builder: ( context, snapshot) {
+              if(snapshot.hasData){
+                return Text(snapshot.data.toString()!);
+              }
+              else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return const CircularProgressIndicator();
+              }
+
+            }),
           ],
         ),
       ),

@@ -7,7 +7,7 @@ Future main() async{
 
   await dotenv.load(fileName: ".env");
 
-  var test = config();
+
   runApp(MyApp());
 }
 
