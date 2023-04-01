@@ -15,6 +15,11 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
 
+  final db = Database.instance;
+  int a= 1+2;
+  //sql 결과를 담기 위한 mapList
+  List<Map<String, dynamic>> _results = [];
+
   @override
   void initState() {
     super.initState();
@@ -37,18 +42,15 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-  Future<String> test() async {
-  Future<MySqlConnection> conn = config();
+  Future<List<Map<String, dynamic>>> test() async {
+    final results = await db.executeQuery("SELECT * FROM board");
+    return results.map((r) => r.fields).toList();
 
-    Future<Results> result = conn.then(  (val){
-      return val.query("SHOW DATABASE");
-    });
-    Future<String> value= result.then((val){
-      return val.toString();
-    }) ;
-
-    return value;
-
+    // Future<String> value= result.then((val){
+    //   return val.toString();
+    // }) ;
+    //
+    // return value;
   }
   // 로그인 처리
   void _login() async {
@@ -150,19 +152,29 @@ class _LoginPageState extends State<LoginPage> {
 
               ],
             ),
-            FutureBuilder(
-                future: test(),
-                builder: ( context, snapshot) {
-              if(snapshot.hasData){
-                return Text(snapshot.data.toString()!);
+            FutureBuilder<List<Map<String,dynamic>>>(
+              future: test(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    _results = snapshot.data;
+                    return ListView.builder(
+                      itemCount: _results.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text(_results[index]['name']),
+                          subtitle: Text(_results[index]['email']),
+                        );
+                      },
+                    );
+                  } else {
+                    return Text('No Results Found.');
+                  }
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
               }
-              else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                return const CircularProgressIndicator();
-              }
-
-            }),
+            ),
           ],
         ),
       ),
