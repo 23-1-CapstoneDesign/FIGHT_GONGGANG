@@ -6,6 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future main() async{
 
   await dotenv.load(fileName: ".env");
+  var db= Database.instance;
+
+
+  var results = await db.executeQuery("SELECT * FROM board");
+var _results = results.map((r) => r.fields).toList();
 
 
   runApp(MyApp());
