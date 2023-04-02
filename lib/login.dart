@@ -16,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _autoLogin = false;
 
   final db = Database.instance;
-  int a= 1+2;
+
   //sql 결과를 담기 위한 mapList
   List<Map<String, dynamic>> _results = [];
 
@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _checkAutoLogin();
+
   }
 
   void _checkAutoLogin() async {
@@ -42,16 +43,10 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
-  Future<List<Map<String, dynamic>>> test() async {
-    final results = await db.executeQuery("SELECT * FROM board");
-    return results.map((r) => r.fields).toList();
 
-    // Future<String> value= result.then((val){
-    //   return val.toString();
-    // }) ;
-    //
-    // return value;
-  }
+
+
+
   // 로그인 처리
   void _login() async {
     final username = _usernameController.text;
@@ -62,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       prefs.setString('username', username);
       prefs.setString('password', password);
       prefs.setBool('autoLogin', true);
-      prefs.setBool('isLogin',true);
+      prefs.setBool('isLogin', true);
     }
 
     Navigator.push(
@@ -92,9 +87,6 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
               decoration: InputDecoration(labelText: '비밀번호'),
             ),
-
-
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -133,7 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   },
                   child: Text('비밀번호 찾기'),
-
                 ),
               ],
             ),
@@ -149,32 +140,9 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 Text('자동 로그인'),
-
               ],
             ),
-            FutureBuilder<List<Map<String,dynamic>>>(
-              future: test(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    _results = snapshot.data;
-                    return ListView.builder(
-                      itemCount: _results.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListTile(
-                          title: Text(_results[index]['name']),
-                          subtitle: Text(_results[index]['email']),
-                        );
-                      },
-                    );
-                  } else {
-                    return Text('No Results Found.');
-                  }
-                } else {
-                  return Center(child: CircularProgressIndicator());
-                }
-              }
-            ),
+
           ],
         ),
       ),

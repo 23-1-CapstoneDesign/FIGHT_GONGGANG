@@ -24,7 +24,7 @@ class Database{
   // Open a connection to the MySQL database
 
   Future<MySqlConnection> getConnection() async {
-    if (_connection != null) return _connection;
+
     _connection = await MySqlConnection.connect(ConnectionSettings(
         host: _host,
         port: _port,
@@ -44,7 +44,7 @@ class Database{
   // 쿼리문 실행 함수
   Future<Results> executeQuery(String query, [List<dynamic>? params]) async {
     var conn = await getConnection();
-    var results = conn.query(query, params);
+    var results = await conn.query(query, params);
     return results;
   }
 
