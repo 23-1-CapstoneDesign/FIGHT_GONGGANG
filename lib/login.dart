@@ -5,6 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
 import 'dbconfig/dbconnect.dart';
 
+/*
+로그인 페이지
+
+함수 리스트
+_checkAutoLogin(): 로그인 시 자동 로그인을 체크 했는 지 확인하는 함수, 체크 했을 시 이 페이지를 바로 건너 뜀.
+_clickLogin(): 로그인 버튼을 눌렀을 때 호출 되는 함수. 호출시 자동로그인 체크 확인과 입력된 값을 바탕으로 login()에 떠넘기는 역할을 함.
+_login(String id,String password): 입력창에 입력된 입력값을 바탕으로 로그인을 하게 되는 함수.
+
+todo 로그인 검증 기능 구현 id와 비밀번호(sha-256)을 이용해 검증, 로그인시 로그인 세션(id정보)를 shared_preferences에 저장 로그아웃시 삭제
+
+ */
+
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -17,8 +30,6 @@ class _LoginPageState extends State<LoginPage> {
 
   final db = Database.instance;
 
-  //sql 결과를 담기 위한 mapList
-  List<Map<String, dynamic>> _results = [];
 
   @override
   void initState() {
@@ -33,25 +44,13 @@ class _LoginPageState extends State<LoginPage> {
     if (autoLogin != null && autoLogin) {
       final username = prefs.getString('username');
       final password = prefs.getString('password');
-      if (username != null && password != null) {
-        _usernameController.text = username;
-        _passwordController.text = password;
-        setState(() {
-          _autoLogin = true;
-        });
-        _login();
-      }
+      _login(username!,password!);
     }
   }
 
-
-
-
-  // 로그인 처리
-  void _login() async {
+  void clickLogin() async{
     final username = _usernameController.text;
     final password = _passwordController.text;
-    // 로그인 처리 로직
     if (_autoLogin) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('username', username);
@@ -59,13 +58,46 @@ class _LoginPageState extends State<LoginPage> {
       prefs.setBool('autoLogin', true);
       prefs.setBool('isLogin', true);
     }
+    _login(username,password);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MaintabPage()),
-    );
   }
 
+
+  // 로그인 처리
+  void _login(String id,String password) async {
+    // 로그인 처리 이 들어가야할 구간
+
+    //true: 로그인 성공 false: 로그인 실패시 작동할 문구
+    if(true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MaintabPage()),
+      );
+    }
+    else{
+    showLoginErrorPopup();
+
+    }
+  }
+
+
+  void showLoginErrorPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('로그인 실패'),
+          content: Text('아이디 또는 비밀번호가 맞지 않습니다.'),
+          actions: [
+            TextButton(
+              child: Text('확인'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(minimumSize: (Size(200, 40))),
-                  onPressed: _login,
+                  onPressed: clickLogin,
                   child: Text('로그인'),
                 ),
               ],

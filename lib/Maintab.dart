@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'Layout/Dashboard.dart';
+
 import 'Maintab/home.dart';
+import 'Maintab/comunity.dart';
+import 'Maintab/mypage.dart';
+import 'Maintab/party.dart';
 import 'login.dart';
 
 class MaintabPage extends StatefulWidget {
@@ -12,7 +16,9 @@ class _MaintabPageState extends State<MaintabPage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     HomePage(),
-    HomePage(),
+    PartyPage(),
+    ComunityPage(),
+    Mypage(),
   ];
 
   @override
@@ -24,14 +30,25 @@ class _MaintabPageState extends State<MaintabPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
+
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label:'Home',
+            label:'Main',
+            backgroundColor: Colors.blue,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.supervised_user_circle),
+            label: 'Party',
+            backgroundColor: Colors.blue,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Community',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.perm_identity),
+            label: 'Mypage',
           ),
         ],
       ),
