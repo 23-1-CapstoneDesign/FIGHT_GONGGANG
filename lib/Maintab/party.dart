@@ -12,7 +12,7 @@ class PartyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: ()  async {
-      if (_lastPressedTime == null ||
+      if (_lastPressedTime == null ||//뒤로가기 버튼을 막기 위함
           DateTime.now().difference(_lastPressedTime!) > Duration(seconds: 2)) {
         // 첫 번째 뒤로가기 버튼 클릭 시
         _lastPressedTime = DateTime.now();

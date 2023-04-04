@@ -17,8 +17,10 @@ class _MaintabPageState extends State<MaintabPage> {
   final List<Widget> _children = [
     HomePage(),
     PartyPage(),
+    PartyPage(),
     ComunityPage(),
     Mypage(),
+
   ];
 
   @override
@@ -42,6 +44,11 @@ class _MaintabPageState extends State<MaintabPage> {
             label: 'Party',
             backgroundColor: Colors.blue,
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.location_on),
+            label:"지도",
+
+          )
+          ,
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: 'Community',
@@ -49,6 +56,7 @@ class _MaintabPageState extends State<MaintabPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.perm_identity),
             label: 'Mypage',
+
           ),
         ],
       ),
@@ -61,5 +69,9 @@ class _MaintabPageState extends State<MaintabPage> {
     setState(() {
       _currentIndex = index;
     });
+    if(_currentIndex==2){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomePage()));
+
+    }
   }
 }
