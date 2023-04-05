@@ -41,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
   void _checkAutoLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final autoLogin = prefs.getBool('autoLogin');
+    
     if (autoLogin != null && autoLogin) {
       final username = prefs.getString('username');
       final password = prefs.getString('password');
