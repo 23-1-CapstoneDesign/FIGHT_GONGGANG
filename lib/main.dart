@@ -17,9 +17,8 @@ Future main() async{
   await dotenv.load(fileName: ".env");
   var db= Database.instance;
 
-
-  runApp(
-      MyApp());
+  var a= await getCurrentLocation();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
