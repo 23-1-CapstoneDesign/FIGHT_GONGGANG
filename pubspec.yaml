@@ -35,7 +35,7 @@ dependencies:
   kakaomap_webview: ^0.6.2
   kakao_flutter_sdk: ^1.4.2
   geolocator: ^9.0.2
-
+  timetable_view: ^0.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
