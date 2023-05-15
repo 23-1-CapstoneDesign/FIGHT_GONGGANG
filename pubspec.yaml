@@ -1,5 +1,5 @@
 name: fighting_gonggang
-description: 싸우자 공강아
+description: 덤벼라 공강아
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -42,6 +42,7 @@ dependencies:
   flutter_time_picker_spinner: ^2.0.0
   google_fonts: ^4.0.4
   fluttertoast: ^8.2.1
+  image_picker: ^0.8.7+5
 dev_dependencies:
   flutter_test:
     sdk: flutter

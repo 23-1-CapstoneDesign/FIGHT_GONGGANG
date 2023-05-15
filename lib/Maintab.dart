@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Layout/Dashboard.dart';
 
+import 'Maintab/comunity/community_main.dart';
 import 'Maintab/home/home.dart';
 import 'Maintab/comunity/comunity.dart';
 import 'Maintab/mypage.dart';
@@ -25,7 +26,7 @@ class _MaintabPageState extends State<MaintabPage> {
     HomePage(),
     PartyPage(),
     MapPage(),
-    ComunityPage(),
+    CommunityPage(),
     Mypage(),
     TimeTable(),
     AddClass(),
