@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'Login.dart';
 import 'Maintab.dart';
-import 'dbconfig/test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
-import 'dbconfig/db.dart';
 /*
 * main 함수가 존재하는 구역
 * 전역적으로 데이터를 로드할 일이 있다면 이곳에 넣으면 될듯... 이 이상은 저도 잘 몰라용
