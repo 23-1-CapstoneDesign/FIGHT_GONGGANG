@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'Login.dart';
 import 'Maintab.dart';
-import 'dbconfig/dbconnect.dart';
+import 'dbconfig/test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dbconfig/db.dart';
 /*
 * main 함수가 존재하는 구역
 * 전역적으로 데이터를 로드할 일이 있다면 이곳에 넣으면 될듯... 이 이상은 저도 잘 몰라용
@@ -15,8 +16,6 @@ import 'package:geolocator/geolocator.dart';
 Future main() async{
 
   await dotenv.load(fileName: ".env");
-  var db= Database.instance;
-
 
   runApp(MyApp());
 }
@@ -27,7 +26,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Login Form',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+          primarySwatch: Colors.yellow,
+      ),
+
+      darkTheme: ThemeData(
+        primarySwatch: Colors.yellow,
+        colorScheme: const ColorScheme.dark(background: Colors.black)
+, textTheme: TextTheme(
+
+        labelLarge: TextStyle(color:Colors.white),
+
+        bodyMedium: TextStyle(color:Colors.green),
+        bodySmall: TextStyle(color:Colors.green),
+
+
+
+
+      ),
       ),
 
       initialRoute: '/',// 앱에서 기본으로 실행될 페이지( 여기선 로그인)

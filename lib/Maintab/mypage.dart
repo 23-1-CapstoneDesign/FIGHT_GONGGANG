@@ -9,7 +9,12 @@ class Mypage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () async {
+      // 이전 페이지로 이동하지 않고 원하는 동작을 수행
+      // 예를 들면 다이얼로그 표시 등
+      return false; // true를 반환하면 이전 페이지로 이동
+    },child:Scaffold(
       body: Container(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -41,6 +46,6 @@ class Mypage extends StatelessWidget {
       drawer: Drawer(
         child: dashboard(),
       ),
-    );
+    ),);
   }
 }

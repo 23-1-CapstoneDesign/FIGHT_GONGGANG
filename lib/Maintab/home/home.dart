@@ -21,19 +21,25 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("시간표"),
-
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        // 이전 페이지로 이동하지 않고 원하는 동작을 수행
+        // 예를 들면 다이얼로그 표시 등
+        return false; // true를 반환하면 이전 페이지로 이동
+      },
+      child: Scaffold(
+        body: Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("시간표"),
+            ],
+          ),
         ),
-      ),
-      drawer: Drawer(
-        child: dashboard(),
+        drawer: Drawer(
+          child: dashboard(),
+        ),
       ),
     );
   }

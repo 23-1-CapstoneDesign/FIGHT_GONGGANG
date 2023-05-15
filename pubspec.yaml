@@ -36,6 +36,12 @@ dependencies:
   kakao_flutter_sdk: ^1.4.2
   geolocator: ^9.0.2
   timetable_view: ^0.3.0
+  mongo_dart: ^0.9.1
+  syncfusion_flutter_calendar: ^21.2.3
+  cupertino_date_textbox: ^1.0.3
+  flutter_time_picker_spinner: ^2.0.0
+  google_fonts: ^4.0.4
+  fluttertoast: ^8.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
-import 'dbconfig/dbconnect.dart';
-
+import 'dbconfig/test.dart';
+import 'package:fighting_gonggang/Layout/items.dart';
 /*
 로그인 페이지
 
@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
 
-  final db = Database.instance;
+  final db = DatabaseTest.instance;
 
 
   @override
@@ -50,15 +50,21 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void clickLogin() async{
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+    // final username = _usernameController.text;
+    // final password = _passwordController.text;
+    //todo 로그인 적용전까지만 사용
+    const username = "asdf";
+    const password = "1234444";
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_autoLogin) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+
       prefs.setString('username', username);
       prefs.setString('password', password);
       prefs.setBool('autoLogin', true);
       prefs.setBool('isLogin', true);
     }
+    prefs.setString('username', username);
     _login(username,password);
 
   }
@@ -106,20 +112,24 @@ class _LoginPageState extends State<LoginPage> {
         title: Text('로그인'),
       ),
       body: Padding(
+
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 10.0),
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: '아이디'),
+            Center(
+              child: Image(
+                height: 150,
+                width: 100,
+                image: NetworkImage('https://picsum.photos/200/300'),
+              ),
             ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: '비밀번호'),
-            ),
+            SizedBox(height: 20.0),
+            FGTextField(controller: _usernameController, text: "아이디"),
+            SizedBox(height: 20.0),
+            FGTextField(controller: _passwordController, text:  '비밀번호',obscureText: true),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

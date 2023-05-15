@@ -3,12 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
 
-import '../Layout/navbar.dart';
+import '../../Layout/navbar.dart';
 class ComunityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return  WillPopScope(
+        onWillPop: () async {
+      // 이전 페이지로 이동하지 않고 원하는 동작을 수행
+      // 예를 들면 다이얼로그 표시 등
+      return false; // true를 반환하면 이전 페이지로 이동
+    },child:Scaffold(
           // appBar: AppBar(
           //    title: Text('홈'),
           // ),
@@ -44,7 +49,8 @@ class ComunityPage extends StatelessWidget {
           drawer: Drawer(
             child: dashboard(),
           ),
-        );
+        ),
+    );
   }
 
 
