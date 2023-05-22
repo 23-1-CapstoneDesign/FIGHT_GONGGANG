@@ -8,6 +8,7 @@ class ComunityPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return  WillPopScope(
         onWillPop: () async {
       // 이전 페이지로 이동하지 않고 원하는 동작을 수행

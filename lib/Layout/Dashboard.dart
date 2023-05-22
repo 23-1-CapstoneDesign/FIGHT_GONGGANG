@@ -2,6 +2,13 @@ import 'package:fighting_gonggang/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+
+/*
+≡ <- 이런 모양의 버튼을 클릭했을 때 나타나는 대쉬보드
+
+
+ */
 class dashboard extends StatelessWidget {
 
 

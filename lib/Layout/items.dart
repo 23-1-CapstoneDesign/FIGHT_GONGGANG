@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
+/*
+자주 사용할 위젯양식들을 모아둔 코드
 
+
+
+
+ */
   class FGTextField extends StatelessWidget{
 
   final TextEditingController controller;
   final String text;
   final bool obscureText;
-  const FGTextField({super.key, required this.controller,required this.text,this.obscureText=false});
+  final FocusNode? focusNode;
+  final void Function(String)? onChanged;
+  final void Function()? onTap;
+
+  const FGTextField({super.key, required this.text,required this.controller,this.onChanged,this.obscureText=false,this.focusNode,this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +27,9 @@ import 'package:google_fonts/google_fonts.dart';
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      focusNode: focusNode,
+      onChanged: onChanged,
+      onTap:onTap,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // 원하는 패딩 설정
         border: OutlineInputBorder(
@@ -31,13 +44,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 
 
-class FGButton extends StatelessWidget{
+class FGRoundButton extends StatelessWidget{
 
   final String text;
 
   final void Function() onPressed;
 
-  const FGButton({super.key,required this.text,required this.onPressed,});
+  const FGRoundButton({super.key,required this.text,required this.onPressed,});
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+
+
+
+/*
+하단 바
+
+ */
 class CustomNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;

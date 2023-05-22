@@ -27,6 +27,9 @@ dependencies:
 
   # 만약 Pub.dev에서 외부 라이브러리를 불러와 사용하고 싶다면 아래에 "라이브러리명": ^version 형식으로 작성 후 Pub upgrade를 하면 라이브러리를 불러와유.
   # Use with the CupertinoIcons class for iOS style icons.
+  
+  
+  #효택
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.0.20
   mysql1: ^0.20.0
@@ -43,6 +46,15 @@ dependencies:
   google_fonts: ^4.0.4
   fluttertoast: ^8.2.1
   image_picker: ^0.8.7+5
+  flutter_localization: ^0.1.10
+  intl: ^0.18.1
+  syncfusion_localizations: ^21.2.4
+  permission_handler: ^10.2.0
+  webview_flutter: ^3.0.2
+
+
+dependency_overrides:
+  intl: ^0.18.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

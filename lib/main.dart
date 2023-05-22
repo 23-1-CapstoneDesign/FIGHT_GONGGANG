@@ -3,6 +3,12 @@ import 'Login.dart';
 import 'Maintab.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+
 /*
 * main 함수가 존재하는 구역
 * 전역적으로 데이터를 로드할 일이 있다면 이곳에 넣으면 될듯... 이 이상은 저도 잘 몰라용
@@ -12,6 +18,8 @@ import 'package:geolocator/geolocator.dart';
  */
 
 Future main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ko_KR', null);
 
   await dotenv.load(fileName: ".env");
 
@@ -22,12 +30,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
       title: 'Login Form',
       theme: ThemeData(
           primarySwatch: Colors.yellow,
 
       ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        SfGlobalLocalizations.delegate
 
+      ],
+      supportedLocales: [
+        const Locale('ko', 'KR'),
+      ],
+      locale: Locale('ko', 'KR'),
       darkTheme: ThemeData(
         primarySwatch: Colors.yellow,
         colorScheme: const ColorScheme.dark(background: Colors.black)

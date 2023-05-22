@@ -1,3 +1,4 @@
+import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
 import 'package:flutter/material.dart';
 import 'package:cupertino_date_textbox/cupertino_date_textbox.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
@@ -15,15 +16,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AddClass extends StatefulWidget {
   @override
-  _AddClassState createState() => _AddClassState();
+  AddClassState createState() => AddClassState();
 }
 
-class _AddClassState extends State<AddClass> {
-
+class AddClassState extends State<AddClass> {
   static final dburl = dotenv.env["MONGO_URL"].toString();
   DateTime _selectedTime = DateTime.now();
   int _selectedDayIndex = -1;
   List<String> _daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
+  List<String> _daysOfWeekENG = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
   List<String> _hours = [];
   List<String> _minutes = [];
   late Database db;
@@ -51,70 +52,178 @@ class _AddClassState extends State<AddClass> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(title: Text("시간표 추가")),
         body: Column(children: [
+          TimeTable(),
           Row(
               mainAxisAlignment: MainAxisAlignment.end, // 위젯을 우측에 정렬
               children: [
-                FGButton(
+                FGRoundButton(
                   text: "취소",
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(context);
                   },
                 ),
                 SizedBox(width: 0),
-                FGButton(
+                FGRoundButton(
                     text: "완료",
                     onPressed: () async {
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       // DB insert 부분
                       mongo.Db conn = await mongo.Db.create(dburl);
                       await conn.open();
                       mongo.DbCollection collection = conn.collection('class');
                       List<String> startTimes = [];
                       List<String> endTimes = [];
-                      bool verification = true;
+
+                      List<String> days = [];
+
+                      bool verification1 = true;
+                      bool verification2 = true;
+                      bool verification3 = true;
+
                       for (int i = 0; i < times; i++) {
+                        days.add(_daysOfWeekENG[
+                            _daysOfWeek.indexOf(_selectedDay[i])]);
+
                         startTimes.add(
                             "${_selectedStartHours[i]}:${_selectedStartMinutes[i]}");
                         endTimes.add(
                             "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}");
-                          if(startTimes[i].compareTo(endTimes[i])!=-1){
-                            verification=false;
-                          }
-                      }
-                      if(times==0){
-                        Fluttertoast.showToast(msg: "시간을 추가해 시간을 입력해 주세요",  toastLength: Toast.LENGTH_SHORT,  gravity: ToastGravity.BOTTOM, );
+                        if (startTimes[i].compareTo(endTimes[i]) != -1) {
+                          setState(() {
+                            verification1 = false;
+                          });
+                        }
 
+                        var finding = await collection.find({
+                          '\$and': [
+                            {
+                              '\$or': [
+                                {
+                                  'startTime': {
+                                    '\$gte': startTimes[i],
+                                    '\$lte': endTimes[i],
+                                  }
+                                },
+                                {
+                                  'endTime': {
+                                    '\$gte': startTimes[i],
+                                    '\$lte': endTimes[i],
+                                  }
+                                },
+                                {
+                                  'startTime': {'\$lt': startTimes[i]},
+                                  'endTime': {'\$gt': endTimes[i]},
+                                },
+                              ]
+                            },
+                            {
+                              'user': prefs.getString('username'),
+                              'date': days[i]
+                            }
+                          ]
+                        }).toList();
+
+                        if (finding.isNotEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('등록 실패'),
+                                content: Text('중복된 수업이 존재합니다' +
+                                    '\n중복된 수업:' +
+                                    finding[0]['className'] +
+                                    '\n중복된 시간:' +
+                                    startTimes[i] +
+                                    "~" +
+                                    endTimes[i]),
+                                actions: [
+                                  TextButton(
+                                    child: Text('확인'),
+                                    onPressed: () =>
+                                        Navigator.pop(context, true)
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          return;
+                        }
                       }
-                      else if(verification) {
+
+                      for (int i = 0; i < times; i++) {
+                        for (int j = 0; j < times; j++) {
+                          if (i != j) {
+                            int res1 = startTimes[i].compareTo(startTimes[j]);
+                            int res2 = startTimes[i].compareTo(endTimes[j]);
+                            int res3 = endTimes[i].compareTo(startTimes[j]);
+                            int res4 = endTimes[i].compareTo(endTimes[j]);
+                            if (res1 <= 0 && res3 >= 0) {
+                              setState(() {
+                                verification3 = false;
+                              });
+                            } else if (res2 <= 0 && res4 >= 0) {
+                              setState(() {
+                                verification3 = false;
+                              });
+                            }
+                          }
+                        }
+                      }
+
+                      if (times == 0) {
+                        Fluttertoast.showToast(
+                          msg: "시간을 추가해 시간을 입력해 주세요",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                        );
+                      } else if (!verification1) {
+                        Fluttertoast.showToast(
+                          msg: "시작 시간이 끝나는 시간보다 빨라야 합니다.",
+                          toastLength: Toast.LENGTH_SHORT,
+                        );
+                      } else if (!verification2) {
+                        Fluttertoast.showToast(
+                          msg: "이미 같은 시간에 수업이 있습니다.",
+                          toastLength: Toast.LENGTH_SHORT,
+                        );
+                      } else if (!verification3) {
+                        Fluttertoast.showToast(
+                          msg: "중복된 시간",
+                          toastLength: Toast.LENGTH_SHORT,
+                        );
+                      } else {
                         for (int i = 0; i < _selectedDay.length; i++) {
                           var result = await collection.insert({
                             'user': prefs.getString('username'),
                             'className': _classController.text,
-                            'date': _selectedDay[i],
+                            'date': days[i],
                             'startTime':
-                            "${_selectedStartHours[i]}:${_selectedStartMinutes[i]}",
+                                "${_selectedStartHours[i]}:${_selectedStartMinutes[i]}",
                             'endTime':
-                            "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}",
+                                "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}",
                           });
                         }
                         Navigator.of(context).pop();
                       }
-                      else{
-                        Fluttertoast.showToast(msg: "시작 시간이 끝나는 시간보다 빨라야 합니다.",  toastLength: Toast.LENGTH_SHORT,);
 
-                      }
 
-                      //
                     }),
                 SizedBox(width: 0),
               ]),
-          FGTextField(controller: _classController, text: "강의명"),
+          FGTextField(
+            controller: _classController,
+            text: "강의명",
+          ),
           SizedBox(height: 20.0),
-          FGTextField(controller: _professorController, text: "교수명"),
+          FGTextField(
+            controller: _professorController,
+            text: "교수명",
+          ),
           ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -149,7 +258,7 @@ class _AddClassState extends State<AddClass> {
                           });
                         },
                       ),
-                      Text("시작 시간:"),
+                      Text("시작:"),
                       DropdownButton<String>(
                         value: _selectedStartHours[index],
                         items: _hours.map((String item) {
@@ -179,7 +288,7 @@ class _AddClassState extends State<AddClass> {
                           });
                         },
                       ),
-                      Text("종료 시간:"),
+                      Text("종료:"),
                       DropdownButton<String>(
                         value: _selectedEndHours[index],
                         items: _hours.map((String item) {
@@ -209,6 +318,21 @@ class _AddClassState extends State<AddClass> {
                           });
                         },
                       ),
+                      SizedBox(
+                          width: 20,
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedDay.removeAt(index);
+                                _selectedStartMinutes.removeAt(index);
+                                _selectedStartHours.removeAt(index);
+                                _selectedEndHours.removeAt(index);
+                                _selectedEndMinutes.removeAt(index);
+                                times -= 1;
+                              });
+                            },
+                            icon: Icon(Icons.delete),
+                          ))
                     ]);
               },
             ),
