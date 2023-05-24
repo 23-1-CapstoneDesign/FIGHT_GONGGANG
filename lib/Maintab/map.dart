@@ -9,6 +9,8 @@ import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakaomap_webview/kakaomap_webview.dart';
 
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
+
 import 'package:geolocator/geolocator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -19,6 +21,7 @@ class MapPage extends StatefulWidget {
 
 // class MapPage extends StatelessWidget {
 class _MapPageState extends State<MapPage> {
+  static final dburl = dotenv.env["MONGO_URL"].toString();
   DateTime? _lastPressedTime; // 마지막으로 뒤로가기 버튼을 누른 시간
   double max_lat = 36.801758;
   double max_lng = 127.069522;
@@ -31,6 +34,16 @@ class _MapPageState extends State<MapPage> {
   var x = 36.798786;
   var y = 127.074959;
 
+  Future<String> test() async {
+    mongo.Db conn = await mongo.Db.create(dburl);
+    await conn.open();
+    mongo.DbCollection collection = conn.collection('users');
+
+    var find = await collection.find({'username': 'admin'}).toList();
+
+    return find.toString();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -40,8 +53,10 @@ class _MapPageState extends State<MapPage> {
           x = value.latitude;
           y = value.longitude;
 
+
+
+
           webViewController?.runJavascript('''
-              
         markers=[];
         now=[];
         var moveLatLon = new kakao.maps.LatLng($x, $y);
@@ -53,13 +68,15 @@ class _MapPageState extends State<MapPage> {
         let sisulimage = new kakao.maps.MarkerImage(imgSrc, imgsize, imgOption);
         
         const jayeonposition = new kakao.maps.LatLng(36.798816,127.074024);
-        
+        var test= {test().then((result) {
+           return result;
+         })}
         let jayeonmarker = new kakao.maps.Marker({
           position: jayeonposition,
           image: sisulimage,
         });
         jayeonmarker.setMap(map);
-        
+      
         }
         if($isFirst){
         sisulMarker();
