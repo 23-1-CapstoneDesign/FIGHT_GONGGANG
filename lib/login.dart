@@ -34,13 +34,16 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
+
   static final dburl = dotenv.env["MONGO_URL"].toString();
+
 
   @override
   void initState() {
     super.initState();
     checkPermissions();
     _checkAutoLogin();
+
   }
 
   Future<void> checkPermissions() async {
@@ -65,6 +68,14 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+
+  void clickLogin() async {
+    // final username = _usernameController.text;
+    // final password = _passwordController.text;
+    //todo 로그인 적용전까지만 사용
+    const username = "asdf";
+    const password = "1234444";
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password); // 비밀번호를 바이트로 변환
     var sha256Hash = sha256.convert(bytes); // SHA-256 해시 알고리즘 적용
@@ -82,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
       password = "admin";
       return true;
     }());
+
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_autoLogin) {
@@ -108,7 +120,11 @@ class _LoginPageState extends State<LoginPage> {
         .find({'email': id, 'password': hashPassword(password)}).toList();
 
     //true: 로그인 성공 false: 로그인 실패시 작동할 문구
+
+    if (true) {
+=======
     if (find.length == 1) {
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MaintabPage()),
