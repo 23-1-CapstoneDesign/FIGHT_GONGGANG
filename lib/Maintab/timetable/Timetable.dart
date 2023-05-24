@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'AddClass.dart';
 
 /*
 메인 시간표영역
@@ -12,11 +13,15 @@ import 'AddClass.dart';
  */
 
 class TimeTable extends StatefulWidget {
+  static GlobalKey<TimeTableState> myWidgetKey =
+  GlobalKey<TimeTableState>();
   @override
-  _TimeTableState createState() => _TimeTableState();
+  TimeTableState createState() => TimeTableState();
 }
 
-class _TimeTableState extends State<TimeTable> {
+class TimeTableState extends State<TimeTable> {
+
+
   List<Appointment> _appointments = [];
   int _selectedDayIndex = -1;
   List<String> _classes = [];
@@ -25,84 +30,68 @@ class _TimeTableState extends State<TimeTable> {
   late CalendarDataSource _dataSource;
   static final dburl = dotenv.env["MONGO_URL"].toString();
 
+  DateTime now = DateTime.now();
+
+
+
+
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
+    _appointments = [];
     _dataSource = _getCalendarDataSource();
 
+    getCurrentLocation().then((List<Appointment> value) {
+      if(mounted) {
+        setState(() {
+          _appointments = value;
+        });
+      }
+    });
+
   }
-  Future<List<Map<String, dynamic>>> getCurrentLocation() async {
+
+
+
+
+  Future<List<Appointment>> getCurrentLocation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     mongo.Db conn = await mongo.Db.create(dburl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('class');
-    var result = await collection.find({'user': "asdf"}).toList();
+    var result =
+        await collection.find({'user': prefs.getString('username')}).toList();
 
-    return result;
+    List<Appointment> appointment = [];
+    List<int> weekdays = [DateTime.monday];
+    for (var i = 0; i < result.length; i++) {
+      appointment.add(_getClassAppointments(result[i]['className'],
+          result[i]['startTime'], result[i]['endTime'], result[i]['date']));
+    }
+
+    return appointment;
   }
-
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          FutureBuilder(
-            future: getCurrentLocation(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData == false) {
-                return CircularProgressIndicator();
-              }
-              //error가 발생하게 될 경우 반환하게 되는 부분
-              else if (snapshot.hasError) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Error: ${snapshot.error}',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                );
-              }
-              // 데이터를 정상적으로 받아오게 되면 다음 부분을 실행하게 되는 것이다.
-              else {
-                // return const Text("들어왔어요");
-                //todo Data추가부분
-                final List<Map<String, dynamic>> data = snapshot.data;
-
-                List<Appointment> recurringEvents = [];
-                DateTime startDate = DateTime(DateTime.now().year, 3, 1);
-                DateTime endDate = DateTime(DateTime.now().year,6,20);
-                List<int> weekdays = [DateTime.monday];
-                // RecurrenceProperties recurrenceProperties = RecurrenceProperties(
-                //   startDate: startDate,
-                //   endDate: endDate,
-                //   recurrenceType: RecurrenceType.weekly, // 매주 반복
-                //   interval: 1, // 1주일마다 반복
-                //   weekDays: <WeekDays>[WeekDays.monday]);
-                _addAppointment();
-
-
-                return Expanded(
-                  child: SfCalendar(
-                    view: CalendarView.week,
-                    dataSource: _getCalendarDataSource(),
-                  ),
-                );
-              }
-            },
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _addAppointment();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddClass()),
-              );
-            },
-            child: Text('Add Appointment'),
-
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        SizedBox(
+            width: 400,
+            height: 370,
+            child: SfCalendar(
+              view: CalendarView.week,
+              timeSlotViewSettings: const TimeSlotViewSettings(
+                  timeIntervalHeight: 30,
+                  timeIntervalWidth: 10,
+                  startHour: 09,
+                  endHour: 18,
+                  timeFormat: "hh:mm"),
+              dataSource: _getCalendarDataSource(),
+              headerDateFormat: 'yyyy년 M월',
+            )),
+      ],
     );
   }
 
@@ -110,18 +99,87 @@ class _TimeTableState extends State<TimeTable> {
     return _DataSource(_appointments);
   }
 
-  void _addAppointment() {
+  Appointment _getClassAppointments(
+      String subjectName, String startTime, String endTime, String day) {
+    List<int> startAt = [
+      int.parse(startTime.split(":")[0]),
+      int.parse(startTime.split(":")[1])
+    ];
+    List<int> endAt = [
+      int.parse(endTime.split(":")[0]),
+      int.parse(endTime.split(":")[1])
+    ];
+    // 메주 월요일마다 일정 추가
+    DateTime startDate = DateTime.now();
 
-      DateTime now = DateTime.now();
-      Appointment newAppointment = Appointment(
-        startTime: now,
-        endTime: now.add(Duration(hours: 5)),
-        subject: 'New Appointment',
-        color: Colors.orange,
-      );
-      _appointments.add(newAppointment);
-    }
+    // 메모: 여기에서 원하는 일정을 만들 수 있습니다.
+    // 예를 들면, 'eventName'과 'startTime', 'endTime' 등을 포함하는 Appointment 객체를 만들 수 있습니다.
+    Appointment appointment = Appointment(
+      subject: subjectName,
+      startTime: DateTime(startDate.year, startDate.month, startDate.day,startAt[0],startAt[1],0),
+      endTime: DateTime(startDate.year, startDate.month, startDate.day,
+          endAt[0], endAt[1], 0),
+      color: Colors.blue,
+      recurrenceRule: 'FREQ=WEEKLY;BYDAY=${day};',
+    );
 
+    return appointment;
+
+  }
+
+  void _getPartyAppointments(
+      String subjectName, String startTime, String endTime, String date) {
+    List<int> startAt = [
+      int.parse(startTime.split(":")[0]),
+      int.parse(startTime.split(":")[1])
+    ];
+    List<int> endAt = [
+      int.parse(endTime.split(":")[0]),
+      int.parse(endTime.split(":")[1])
+    ];
+    // 메주 월요일마다 일정 추가
+    DateTime startDate = DateTime.now();
+
+    // 메모: 여기에서 원하는 일정을 만들 수 있습니다.
+    // 예를 들면, 'eventName'과 'startTime', 'endTime' 등을 포함하는 Appointment 객체를 만들 수 있습니다.
+    Appointment appointment = Appointment(
+      subject: subjectName,
+      startTime: DateTime(startDate.year, startDate.month, startDate.day),
+      endTime: DateTime(startDate.year, startDate.month, startDate.day,
+          endAt[0], endAt[1], 0),
+      color: Colors.blue,
+    );
+
+    _appointments.add(appointment);
+  }
+
+
+  void getTempAppointments(
+      String subjectName, String startTime, String endTime, String day) {
+    List<int> startAt = [
+      int.parse(startTime.split(":")[0]),
+      int.parse(startTime.split(":")[1])
+    ];
+    List<int> endAt = [
+      int.parse(endTime.split(":")[0]),
+      int.parse(endTime.split(":")[1])
+    ];
+
+    DateTime startDate = DateTime.now();
+
+    Appointment appointment = Appointment(
+      subject: subjectName,
+      startTime: DateTime(startDate.year, startDate.month, startDate.day),
+      endTime: DateTime(startDate.year, startDate.month, startDate.day,
+          endAt[0], endAt[1], 0),
+      color: Colors.lightBlue,
+      recurrenceRule: 'FREQ=WEEKLY;BYDAY=${day};',
+    );
+
+    setState(() {
+      _appointments.add(appointment);
+    });
+  }
 }
 
 class _DataSource extends CalendarDataSource {

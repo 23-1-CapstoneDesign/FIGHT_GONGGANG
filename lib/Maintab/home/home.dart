@@ -1,26 +1,23 @@
+import 'package:fighting_gonggang/Maintab.dart';
+import 'package:fighting_gonggang/Maintab/timetable/AddClass.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:kakaomap_webview/kakaomap_webview.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
 
-class HomePage extends StatelessWidget {
-  Future<Position> getCurrentLocation() async {
-// 위치 권한을 요청하고 위치 정보를 가져옴
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-// 위치 권한이 거부되었을 경우 null을 반환
-    }
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    return position;
-  }
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
+// class HomePage extends StatelessWidget {
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    var timeTable = TimeTable();
     return WillPopScope(
       onWillPop: () async {
         // 이전 페이지로 이동하지 않고 원하는 동작을 수행
@@ -33,7 +30,23 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("시간표"),
+              timeTable,
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddClass()),
+                    ).then((value) {
+
+
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> MaintabPage()));
+
+                    });
+                  },
+                  child: Text('시간표 등록하러 가기'),
+                )
+              ]),
             ],
           ),
         ),

@@ -1,9 +1,18 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:fighting_gonggang/Maintab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
 import 'package:fighting_gonggang/Layout/items.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
+
+import 'package:permission_handler/permission_handler.dart';
+
 /*
 로그인 페이지
 
@@ -26,10 +35,26 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
 
+  static final dburl = dotenv.env["MONGO_URL"].toString();
+
+
   @override
   void initState() {
     super.initState();
+    checkPermissions();
     _checkAutoLogin();
+
+  }
+
+  Future<void> checkPermissions() async {
+    PermissionStatus status = await Permission.location.status;
+    if (status.isDenied) {
+      requestPermissions();
+    } else {}
+  }
+
+  Future<void> requestPermissions() async {
+    PermissionStatus status = await Permission.camera.request();
   }
 
   void _checkAutoLogin() async {
@@ -43,12 +68,32 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+
   void clickLogin() async {
     // final username = _usernameController.text;
     // final password = _passwordController.text;
     //todo 로그인 적용전까지만 사용
     const username = "asdf";
     const password = "1234444";
+
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password); // 비밀번호를 바이트로 변환
+    var sha256Hash = sha256.convert(bytes); // SHA-256 해시 알고리즘 적용
+    var hashedPassword = sha256Hash.toString(); // 해시값 반환
+    return hashedPassword;
+  }
+
+  void clickLogin() async {
+    var username = _usernameController.text;
+    var password = _passwordController.text;
+
+    //todo 디버그모드에서만 사용
+    assert(() {
+      username = "admin";
+      password = "admin";
+      return true;
+    }());
+
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_autoLogin) {
@@ -65,8 +110,21 @@ class _LoginPageState extends State<LoginPage> {
   void _login(String id, String password) async {
     // 로그인 처리 이 들어가야할 구간
 
+    mongo.Db conn = await mongo.Db.create(dburl);
+    await conn.open();
+    mongo.DbCollection collection = conn.collection('users');
+
+
+
+    var find = await collection
+        .find({'email': id, 'password': hashPassword(password)}).toList();
+
     //true: 로그인 성공 false: 로그인 실패시 작동할 문구
+
     if (true) {
+=======
+    if (find.length == 1) {
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MaintabPage()),

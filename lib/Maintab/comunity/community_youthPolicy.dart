@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 import 'community_youthPolicy_DB.dart';
 
-void main() {
-  runApp(MyApp());
-}
+
 
 class MyApp extends StatefulWidget {
   @override

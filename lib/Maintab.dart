@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'Layout/Dashboard.dart';
 
 import 'Maintab/comunity/community_main.dart';
@@ -76,8 +78,27 @@ class _MaintabPageState extends State<MaintabPage> {
 
   void onTabTapped(int index) {
     if (index == 2) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MapPage()));
+      Permission.location.request();
+      Permission.location.status.then((val) {
+        if (val.isDenied) {
+          Permission.location.request().then((val) {
+            if (val.isDenied) {
+              Fluttertoast.showToast(
+                msg: "위치 권한이 거부되어 사용할 수 없습니다.",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+              );
+            } else {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => MapPage()));
+            }
+          });
+        }
+        else{
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => MapPage()));
+        }
+      });
     } else {
       setState(() {
         _currentIndex = index;
