@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:crypto/crypto.dart';
 import 'package:fighting_gonggang/Maintab.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
   static final dburl = dotenv.env["MONGO_URL"].toString();
+
   @override
   void initState() {
     super.initState();
@@ -47,15 +47,13 @@ class _LoginPageState extends State<LoginPage> {
     PermissionStatus status = await Permission.location.status;
     if (status.isDenied) {
       requestPermissions();
-    } else {
-
-    }
+    } else {}
   }
 
   Future<void> requestPermissions() async {
     PermissionStatus status = await Permission.camera.request();
-
   }
+
   void _checkAutoLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final autoLogin = prefs.getBool('autoLogin');
@@ -104,12 +102,13 @@ class _LoginPageState extends State<LoginPage> {
     await conn.open();
     mongo.DbCollection collection = conn.collection('users');
 
-    var find = await collection.find({'email': id,'password':hashPassword(password)}).toList();
 
+
+    var find = await collection
+        .find({'email': id, 'password': hashPassword(password)}).toList();
 
     //true: 로그인 성공 false: 로그인 실패시 작동할 문구
-    if (find.length==1) {
-
+    if (find.length == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MaintabPage()),
