@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
-import 'dbconfig/test.dart';
 import 'package:fighting_gonggang/Layout/items.dart';
 /*
 로그인 페이지
@@ -17,7 +16,6 @@ todo 로그인 검증 기능 구현 id와 비밀번호(sha-256)을 이용해 검
 
  */
 
-
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -28,28 +26,24 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
 
-  final db = DatabaseTest.instance;
-
-
   @override
   void initState() {
     super.initState();
     _checkAutoLogin();
-
   }
 
   void _checkAutoLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final autoLogin = prefs.getBool('autoLogin');
-    
+
     if (autoLogin != null && autoLogin) {
       final username = prefs.getString('username');
       final password = prefs.getString('password');
-      _login(username!,password!);
+      _login(username!, password!);
     }
   }
 
-  void clickLogin() async{
+  void clickLogin() async {
     // final username = _usernameController.text;
     // final password = _passwordController.text;
     //todo 로그인 적용전까지만 사용
@@ -58,35 +52,29 @@ class _LoginPageState extends State<LoginPage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_autoLogin) {
-
       prefs.setString('username', username);
       prefs.setString('password', password);
       prefs.setBool('autoLogin', true);
       prefs.setBool('isLogin', true);
     }
     prefs.setString('username', username);
-    _login(username,password);
-
+    _login(username, password);
   }
 
-
   // 로그인 처리
-  void _login(String id,String password) async {
+  void _login(String id, String password) async {
     // 로그인 처리 이 들어가야할 구간
 
     //true: 로그인 성공 false: 로그인 실패시 작동할 문구
-    if(true) {
+    if (true) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MaintabPage()),
       );
-    }
-    else{
-    showLoginErrorPopup();
-
+    } else {
+      showLoginErrorPopup();
     }
   }
-
 
   void showLoginErrorPopup() {
     showDialog(
@@ -105,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
         title: Text('로그인'),
       ),
       body: Padding(
-
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -128,8 +116,10 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20.0),
             FGTextField(controller: _usernameController, text: "아이디"),
             SizedBox(height: 20.0),
-            FGTextField(controller: _passwordController, text:  '비밀번호',obscureText: true),
-
+            FGTextField(
+                controller: _passwordController,
+                text: '비밀번호',
+                obscureText: true),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -185,7 +175,6 @@ class _LoginPageState extends State<LoginPage> {
                 Text('자동 로그인'),
               ],
             ),
-
           ],
         ),
       ),

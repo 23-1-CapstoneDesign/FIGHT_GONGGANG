@@ -6,7 +6,7 @@ import 'Maintab/comunity/community_main.dart';
 import 'Maintab/home/home.dart';
 import 'Maintab/comunity/comunity.dart';
 import 'Maintab/mypage.dart';
-import 'Maintab/party/party.dart';
+import 'Maintab/party/party_main.dart';
 import 'Maintab/map.dart';
 import 'Maintab/timetable/Timetable.dart';
 import 'Maintab/timetable/AddClass.dart';
@@ -67,9 +67,7 @@ class _MaintabPageState extends State<MaintabPage> {
             label: 'TEST',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance),
-              label: 'TEST2'
-          )
+              icon: Icon(Icons.account_balance), label: 'TEST2')
         ],
       ),
       drawer: Drawer(child: dashboard()),
