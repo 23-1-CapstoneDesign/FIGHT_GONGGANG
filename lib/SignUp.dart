@@ -9,6 +9,8 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:fighting_gonggang/Layout/items.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 class SignupPage extends StatefulWidget {
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -16,10 +18,13 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _nameController = TextEditingController();
+  final _nicknameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repasswordController = TextEditingController();
   int _currentIndex = 0;
+
+  bool _nicknameCheck = false;
   String _checkPassword = "";
   String _checkRepassword = "";
   bool _passwordIsVisible = false;
@@ -30,6 +35,7 @@ class _SignupPageState extends State<SignupPage> {
   static final dburl = dotenv.env["MONGO_URL"].toString();
   FocusNode _nameNode = FocusNode();
   FocusNode _emailNode = FocusNode();
+  FocusNode _nicknameNode = FocusNode();
   FocusNode _passwordNode = FocusNode();
   FocusNode _ckPasswordNode = FocusNode();
   bool nameFocused = false;
@@ -75,6 +81,41 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
+  void nicknameCheck(String nickname) async {
+    mongo.Db conn = await mongo.Db.create(dburl);
+    await conn.open();
+    mongo.DbCollection collection = conn.collection('users');
+
+    var find = await collection.find({'nickname': nickname}).toList();
+    RegExp pattern = RegExp(r'^[가-힣a-zA-Z0-9]{2,8}$');
+    // pattern.hasMatch(nickname);
+
+    if (find.length == 0 && pattern.hasMatch(nickname)) {
+      setState(() {
+        _nicknameCheck = true;
+      });
+    } else {
+      setState(() {
+        _nicknameCheck = false;
+      });
+    }
+  }
+
+  // 파이어베이스 사용자 등록 함수
+  Future<UserCredential?> registerUser(String email, String password) async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: '$email@sunmoon.ac.kr',
+        password: password,
+      );
+      return userCredential;
+    } catch (e) {
+      // 등록 실패 처리
+      return null;
+    }
+  }
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password); // 비밀번호를 바이트로 변환
     var sha256Hash = sha256.convert(bytes); // SHA-256 해시 알고리즘 적용
@@ -94,7 +135,21 @@ class _SignupPageState extends State<SignupPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             FGTextField(controller: _nameController, text: "이름*"),
-
+            SizedBox(
+              height: 10,
+            ),
+            FGTextField(
+              controller: _nicknameController,
+              text: "닉네임*",
+              focusNode: _nicknameNode,
+              onChanged: (str) {
+                nicknameCheck(str);
+              },
+            ),
+            Text(_nicknameCheck ? '사용가능' : '2-8글자사이의 한글,영어,숫자만 입력가능합니다.',
+                style: TextStyle(
+                  color: _nicknameCheck ? Colors.blue : Colors.red,
+                )),
             SizedBox(
               height: 10,
             ),
@@ -151,15 +206,15 @@ class _SignupPageState extends State<SignupPage> {
             SizedBox(
               height: 10,
             ),
-            // if (emailFocused)
-            // todo 이메일
-            // Container(
-            //   padding: EdgeInsets.symmetric(vertical: 8),
-            //   child: Text(
-            //     '',
-            //     style: TextStyle(fontSize: 14),
-            //   ),
-            // ),
+            if (emailFocused)
+              // todo 이메일
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  '',
+                  style: TextStyle(fontSize: 14),
+                ),
+              ),
             FGTextField(
                 text: "비밀번호*",
                 controller: _passwordController,
@@ -187,7 +242,6 @@ class _SignupPageState extends State<SignupPage> {
                     });
                   }
                 })),
-
             Visibility(
                 visible: _passwordIsVisible,
                 child: Text(_checkPassword,
@@ -215,7 +269,6 @@ class _SignupPageState extends State<SignupPage> {
                 }
               },
             ),
-
             Visibility(
                 visible: _RepasswordIsVisible,
                 child: Text(_checkRepassword,
@@ -229,7 +282,7 @@ class _SignupPageState extends State<SignupPage> {
                   final name = _nameController.text;
                   final email = _emailController.text;
                   final password = _passwordController.text;
-
+                  final nickname = _nicknameController.text;
                   if (name.isEmpty || name.length > 15) {
                     Fluttertoast.showToast(
                       msg: "이름이 작성되지 않았습니다",
@@ -264,25 +317,38 @@ class _SignupPageState extends State<SignupPage> {
                     await conn.open();
                     mongo.DbCollection collection = conn.collection('users');
 
-                    try {
-                      var result = await collection.insert({
-                        'username': name,
-                        'email': email,
-                        'password': hashPassword(password),
-                      });
-                      if (result['ok'] != 0) {
+                    UserCredential? userCredential =
+                        await registerUser(email, password);
+
+                    if (userCredential != null) {
+                      try {
+                        var result = await collection.insert({
+                          'username': name,
+                          'email': email,
+                          'password': hashPassword(password),
+                          'nickname': nickname
+                        });
+
+                        if (result['ok'] != 0) {
+                          Fluttertoast.showToast(
+                            msg: "등록에 실패했습니다.",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                          );
+                          _checked = "중복확인";
+                        } else {
+                          if (context.mounted) Navigator.of(context).pop();
+                        }
+                      } catch (e) {
                         Fluttertoast.showToast(
-                          msg: "등록에 실패했습니다.",
+                          msg: e.toString(),
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                         );
-                        _checked = "중복확인";
-                      } else {
-                        if (context.mounted) Navigator.of(context).pop();
                       }
-                    } catch (e) {
+                    } else {
                       Fluttertoast.showToast(
-                        msg: e.toString(),
+                        msg: "등록에 실패했습니다.",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                       );

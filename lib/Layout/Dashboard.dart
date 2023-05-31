@@ -1,4 +1,5 @@
 import 'package:fighting_gonggang/Login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,7 @@ class dashboard extends StatelessWidget {
     children: <Widget>[
       DrawerHeader(
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: Colors.green,
         ),
         child: Text(
           '메뉴',
@@ -50,10 +51,11 @@ class dashboard extends StatelessWidget {
         onTap: () async {
 // 로그아웃 처리 로직
           SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.remove('autoLogin');
           await prefs.remove('username');
           await prefs.remove('password');
           await prefs.remove('isLogin');
+
+          await FirebaseAuth.instance.signOut();
           Navigator.pushAndRemoveUntil (
               context,
               MaterialPageRoute(builder: (context) => LoginPage()),

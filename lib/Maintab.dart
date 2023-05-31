@@ -1,3 +1,5 @@
+
+import 'package:fighting_gonggang/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,9 +9,9 @@ import 'Layout/Dashboard.dart';
 import 'Maintab/comunity/community_main.dart';
 import 'Maintab/home/home.dart';
 import 'Maintab/comunity/comunity.dart';
-import 'Maintab/mypage.dart';
+import 'Maintab/mypage/mypage.dart';
 import 'Maintab/party/party_main.dart';
-import 'Maintab/map.dart';
+import 'Maintab/map/map.dart';
 import 'Maintab/timetable/Timetable.dart';
 import 'Maintab/timetable/AddClass.dart';
 
@@ -28,9 +30,8 @@ class _MaintabPageState extends State<MaintabPage> {
     PartyPage(),
     MapPage(),
     CommunityPage(),
-    Mypage(),
-    TimeTable(),
-    AddClass(),
+    MyPage(),
+    ChatScreen(),
   ];
 
   @override
@@ -45,16 +46,16 @@ class _MaintabPageState extends State<MaintabPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Main',
-            backgroundColor: Colors.blue,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.supervised_user_circle),
             label: 'Party',
-            backgroundColor: Colors.blue,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.location_on),
             label: "지도",
+            backgroundColor: Colors.deepOrange
+
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
@@ -65,11 +66,10 @@ class _MaintabPageState extends State<MaintabPage> {
             label: 'Mypage',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.animation),
-            label: 'TEST',
+            icon: Icon(Icons.perm_identity),
+            label: 'Chat',
           ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance), label: 'TEST2')
+
         ],
       ),
       drawer: Drawer(child: dashboard()),

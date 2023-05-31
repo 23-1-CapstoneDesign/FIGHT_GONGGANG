@@ -43,14 +43,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 
 
-
 class FGRoundButton extends StatelessWidget{
 
   final String text;
 
   final void Function() onPressed;
-
-  const FGRoundButton({super.key,required this.text,required this.onPressed,});
+  final TextStyle? textStyle;
+  const FGRoundButton({super.key,required this.text,required this.onPressed,this.textStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -64,20 +63,44 @@ class FGRoundButton extends StatelessWidget{
 
       ),
       elevation: 2.0,
-      fillColor: Colors.yellow,
+      fillColor: Colors.green,
       shape: CircleBorder(),
       onPressed: (){
   onPressed();
       },
       child: Text(text,
-          style: TextStyle(
-            fontSize: 15,
-            fontFamily: GoogleFonts.lato(
-              fontWeight: FontWeight.w100,
-              fontStyle: FontStyle.italic,
-            ).fontFamily,
-          )),
+      style: textStyle,
+
+      ),
     );
 
+  }
+}
+
+class FGRoundTextField extends StatelessWidget{
+  final String text;
+  const FGRoundTextField({super.key,required this.text});
+  @override
+  Widget build(BuildContext context) {
+
+    return Container(
+      alignment: Alignment.centerLeft,
+      width: 200,
+      height: 35,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.black, // 윤곽선 색상
+          width: 0.1,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 }

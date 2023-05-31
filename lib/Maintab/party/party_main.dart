@@ -56,7 +56,7 @@ class _PartyPageState extends State<PartyPage> {
       builder: (BuildContext context) {
         return PartyDetailsPopup(
           partyName: post.partyName,
-          tag: post.tag,
+          tag: [post.tag],
           currentMembers: post.currentMembers,
           totalMembers: post.totalMembers,
           description: post.description,

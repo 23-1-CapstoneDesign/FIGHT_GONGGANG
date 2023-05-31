@@ -49,14 +49,14 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       getCurrentLocation().then((value) {
-        setState(() {
-          x = value.latitude;
-          y = value.longitude;
+
+        if(mounted) {
+          setState(() {
+            x = value.latitude;
+            y = value.longitude;
 
 
-
-
-          webViewController?.runJavascript('''
+            webViewController?.runJavascript('''
         markers=[];
         now=[];
         var moveLatLon = new kakao.maps.LatLng($x, $y);
@@ -123,11 +123,13 @@ function addMarker(){
 
 
     ''');
-          setState(() {
-            isFirst = false;
+            setState(() {
+              isFirst = false;
+            });
           });
-        });
+        }
       });
+
     });
 
 // 위치 권한이 거부되었을 경우 null을 반환

@@ -40,7 +40,7 @@ dependencies:
   geolocator: ^9.0.2
   timetable_view: ^0.3.0
   mongo_dart: ^0.9.1
-  syncfusion_flutter_calendar: ^21.2.3
+  syncfusion_flutter_calendar: ^21.2.8
   cupertino_date_textbox: ^1.0.3
   flutter_time_picker_spinner: ^2.0.0
   google_fonts: ^4.0.4
@@ -52,7 +52,14 @@ dependencies:
   permission_handler: ^10.2.0
   webview_flutter: ^3.0.2
   socket_io_client: ^2.0.2
-
+  chat_bubbles: ^1.4.1
+  firebase_core: ^2.13.0
+  cloud_firestore: ^4.7.1
+  firebase_auth: ^4.6.1
+  provider: ^6.0.5
+  firebase_messaging: ^14.6.1
+  flutter_chat_bubble: ^2.0.2
+  url_launcher: ^6.1.11
 
 dependency_overrides:
   intl: ^0.18.1

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PartyDetailsPopup extends StatelessWidget {
   final String partyName;
-  final String tag;
+  final List<String> tag;
   final int currentMembers;
   final int totalMembers;
   final String? description;
@@ -18,12 +18,13 @@ class PartyDetailsPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+
       title: Text(partyName),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('태그: $tag'),
+          RichText(text:TextSpan(text:'태그: ${tag.join(" ")}',style: TextStyle(color: Colors.black))),
           Text('현재 인원: $currentMembers/$totalMembers'),
           Text('소개: $description'),
         ],

@@ -12,6 +12,10 @@ import 'package:fighting_gonggang/Layout/items.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+
+import 'dbconfig/UserProvider.dart';
 
 /*
 로그인 페이지
@@ -31,16 +35,28 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _autoLogin = false;
   static final dburl = dotenv.env["MONGO_URL"].toString();
+  bool _loginfn = true;
+  double height = 0;
 
   @override
   void initState() {
     super.initState();
     checkPermissions();
-    _checkAutoLogin();
+    checkLogin();
+  }
+
+  Future<void> checkLogin() async {
+    User? user = await FirebaseAuth.instance.authStateChanges().first;
+
+    if (user != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MaintabPage()),
+      );
+    }
   }
 
   Future<void> checkPermissions() async {
@@ -54,17 +70,6 @@ class _LoginPageState extends State<LoginPage> {
     PermissionStatus status = await Permission.camera.request();
   }
 
-  void _checkAutoLogin() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final autoLogin = prefs.getBool('autoLogin');
-
-    if (autoLogin != null && autoLogin) {
-      final username = prefs.getString('username');
-      final password = prefs.getString('password');
-      _login(username!, password!);
-    }
-  }
-
   String hashPassword(String password) {
     var bytes = utf8.encode(password); // 비밀번호를 바이트로 변환
     var sha256Hash = sha256.convert(bytes); // SHA-256 해시 알고리즘 적용
@@ -73,49 +78,87 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void clickLogin() async {
-    var username = _usernameController.text;
+    if (mounted) {
+      setState(() {
+        _loginfn = false;
+      });
+    }
+    var email = _emailController.text;
     var password = _passwordController.text;
 
     //todo 디버그모드에서만 사용
     assert(() {
-      username = "admin";
-      password = "admin";
+      // email = "admin";
+      // password = "admin1";
+
+      email = "test1";
+      password = "test12";
       return true;
     }());
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (_autoLogin) {
-      prefs.setString('username', username);
+
+    bool login = await _login(email, password);
+    if (login) {
+      prefs.setString('email', email);
       prefs.setString('password', password);
-      prefs.setBool('autoLogin', true);
       prefs.setBool('isLogin', true);
-    }
-    prefs.setString('username', username);
-    _login(username, password);
-  }
-
-  // 로그인 처리
-  void _login(String id, String password) async {
-    // 로그인 처리 이 들어가야할 구간
-
-    mongo.Db conn = await mongo.Db.create(dburl);
-    await conn.open();
-    mongo.DbCollection collection = conn.collection('users');
-
-
-
-    var find = await collection
-        .find({'email': id, 'password': hashPassword(password)}).toList();
-
-    //true: 로그인 성공 false: 로그인 실패시 작동할 문구
-    if (find.length == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MaintabPage()),
       );
     } else {
-      showLoginErrorPopup();
+      if (mounted) {
+        setState(() {
+          _loginfn = true;
+        });
+      }
+      Fluttertoast.showToast(
+        msg: "로그인에 실패하였습니다.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
     }
+  }
+
+  // 파이어베이스 로그인
+  Future<UserCredential?> signInUser(String email, String password) async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: '$email@sunmoon.ac.kr',
+        password: password,
+      );
+      return userCredential;
+    } catch (e) {
+      // 로그인 실패 처리
+      print('로그인 실패: $e');
+      return null;
+    }
+  }
+
+  // 로그인 처리
+  Future<bool> _login(String email, String password) async {
+    // 로그인 처리 이 들어가야할 구간
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    mongo.Db conn = await mongo.Db.create(dburl);
+    await conn.open();
+    mongo.DbCollection collection = conn.collection('users');
+
+    var find = await collection
+        .findOne({'email': email, 'password': hashPassword(password)});
+
+    bool login;
+
+      UserCredential? userCredential = await signInUser(email, password);
+      if (find != null && userCredential != null) {
+      prefs.setString('username', find['username']);
+
+        return true;
+      } else {
+        return false;
+      }
+
   }
 
   void showLoginErrorPopup() {
@@ -156,67 +199,66 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             SizedBox(height: 20.0),
-            FGTextField(controller: _usernameController, text: "아이디"),
+            FGTextField(controller: _emailController, text: "아이디"),
             SizedBox(height: 20.0),
             FGTextField(
                 controller: _passwordController,
                 text: '비밀번호',
                 obscureText: true),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(minimumSize: (Size(200, 40))),
-                  onPressed: clickLogin,
-                  child: Text('로그인'),
+            if (_loginfn)
+              Column(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: (Size(200, 40))),
+                      onPressed: clickLogin,
+                      child: Text('로그인'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(minimumSize: (Size(200, 40))),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignupPage()),
-                    );
-                  },
-                  child: Text('회원가입'),
-                )
-              ],
-            ),
-            SizedBox(height: 1.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('비밀번호를 잊으셨나요?'),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignupPage()),
-                    );
-                  },
-                  child: Text('비밀번호 찾기'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: (Size(200, 40))),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignupPage()),
+                        );
+                      },
+                      child: Text('회원가입'),
+                    )
+                  ],
                 ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Checkbox(
-                  value: _autoLogin,
-                  onChanged: (value) {
-                    setState(() {
-                      _autoLogin = value!;
-                    });
-                  },
-                ),
-                Text('자동 로그인'),
-              ],
-            ),
+                SizedBox(height: 1.0),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text('비밀번호를 잊으셨나요?'),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupPage()),
+                      );
+                    },
+                    child: Text('비밀번호 찾기'),
+                  ),
+                ]),
+              ]),
+            if (!_loginfn)
+              Column(children: [
+                SizedBox(height: 60),
+                Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "로그인중입니다",
+                      textAlign: TextAlign.center,
+                    )),
+                SizedBox(height: 60)
+              ]),
           ],
         ),
       ),

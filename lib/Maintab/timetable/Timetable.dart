@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -85,6 +84,7 @@ class TimeTableState extends State<TimeTable> {
               timeSlotViewSettings: const TimeSlotViewSettings(
                   timeIntervalHeight: 30,
                   timeIntervalWidth: 10,
+
                   startHour: 09,
                   endHour: 18,
                   timeFormat: "hh:mm"),
@@ -116,8 +116,8 @@ class TimeTableState extends State<TimeTable> {
     // 예를 들면, 'eventName'과 'startTime', 'endTime' 등을 포함하는 Appointment 객체를 만들 수 있습니다.
     Appointment appointment = Appointment(
       subject: subjectName,
-      startTime: DateTime(startDate.year, startDate.month, startDate.day,startAt[0],startAt[1],0),
-      endTime: DateTime(startDate.year, startDate.month, startDate.day,
+      startTime: DateTime(startDate.year, 3, 3,startAt[0],startAt[1],0),
+      endTime: DateTime(startDate.year, 3, 3,
           endAt[0], endAt[1], 0),
       color: Colors.blue,
       recurrenceRule: 'FREQ=WEEKLY;BYDAY=${day};',

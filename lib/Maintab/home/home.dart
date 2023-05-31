@@ -1,5 +1,7 @@
 import 'package:fighting_gonggang/Maintab.dart';
+import 'package:fighting_gonggang/Maintab/home/gallery_policy.dart';
 import 'package:fighting_gonggang/Maintab/timetable/AddClass.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
 
 class HomePage extends StatefulWidget {
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -38,15 +41,34 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute(builder: (context) => AddClass()),
                     ).then((value) {
-
-
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> MaintabPage()));
-
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MaintabPage()));
                     });
                   },
                   child: Text('시간표 등록하러 가기'),
-                )
+                ),
+
+                //
               ]),
+              Divider(
+                color: Colors.black,
+                height: 1,
+                thickness: 1,
+                indent: 16,
+                endIndent: 16,
+              )
+              ,
+              Align(
+
+                child: Text(
+                  "청년 정책",
+                  style: TextStyle(fontSize: 30),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Expanded(child: GalleryWidget())
             ],
           ),
         ),
@@ -55,5 +77,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    
   }
 }
