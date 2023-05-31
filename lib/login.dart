@@ -4,8 +4,6 @@ import 'package:crypto/crypto.dart';
 import 'package:fighting_gonggang/Maintab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUp.dart';
 import 'package:fighting_gonggang/Layout/items.dart';
@@ -34,6 +32,7 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _autoLogin = false;
+
   static final dburl = dotenv.env["MONGO_URL"].toString();
 
   @override
@@ -76,12 +75,7 @@ class _LoginPageState extends State<LoginPage> {
     var username = _usernameController.text;
     var password = _passwordController.text;
 
-    //todo 디버그모드에서만 사용
-    assert(() {
-      username = "admin";
-      password = "admin";
-      return true;
-    }());
+  
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_autoLogin) {
@@ -102,12 +96,11 @@ class _LoginPageState extends State<LoginPage> {
     await conn.open();
     mongo.DbCollection collection = conn.collection('users');
 
-
-
     var find = await collection
         .find({'email': id, 'password': hashPassword(password)}).toList();
 
     //true: 로그인 성공 false: 로그인 실패시 작동할 문구
+
     if (find.length == 1) {
       Navigator.push(
         context,
