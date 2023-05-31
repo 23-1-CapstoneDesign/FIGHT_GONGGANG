@@ -52,15 +52,6 @@ class _PostPageState extends State<PostPage> {
                 Navigator.pop(context);
               },
             ),
-            ListTile(
-              title: Text('중고거래'),
-              onTap: () {
-                setState(() {
-                  _selectedBoard = '중고거래';
-                });
-                Navigator.pop(context);
-              },
-            ),
           ],
         ),
       ),

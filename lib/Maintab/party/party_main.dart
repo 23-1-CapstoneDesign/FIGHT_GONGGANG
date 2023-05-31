@@ -5,6 +5,7 @@ import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import '../../Layout/navbar.dart';
 
 import 'party_popup.dart';
+import 'make_party.dart';
 
 class Post {
   final String partyName;
@@ -107,6 +108,20 @@ class _PartyPageState extends State<PartyPage> {
               },
             ),
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MakePartyPage()));
+                  },
+                  backgroundColor: Colors.lightGreen,
+                  child: Icon(Icons.add)),
+            ],
+          )
         ],
       ),
     );

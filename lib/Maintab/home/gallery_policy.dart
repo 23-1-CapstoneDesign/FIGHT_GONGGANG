@@ -74,14 +74,6 @@ class _GalleryWidgetState extends State<GalleryWidget> {
               indent: 16,
               endIndent: 16,
             ),
-            Text("지원내용:${policy?['지원내용']}"),
-            Divider(
-              color: Colors.black,
-              height: 1,
-              thickness: 1,
-              indent: 16,
-              endIndent: 16,
-            ),
             if (policy?['지원규모'] != '-' || policy?['지원규모'] != 'null')
               Column(children: [
                 Text("지원규모:${policy?['지원규모']}"),
