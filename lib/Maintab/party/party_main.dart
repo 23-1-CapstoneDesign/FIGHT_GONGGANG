@@ -70,12 +70,9 @@ class _PartyPageState extends State<PartyPage> {
     var party_list = await collection.find().toList();
     List<Post> tempPost = [];
     for (int i = 0; i < party_list.length; i++) {
-      // print(party_list[i]['nowMembers']);
-
-      print(prefs.getString('username'));
-    print(List<String>.from(party_list[i]['nowMembers']));
-    print(List<String>.from(party_list[i]['nowMembers']).contains(prefs.getString('username')));
-      if (party_list[i]['maxMembers'] != party_list[i]['nowMembers'].length&&!List<String>.from(party_list[i]['nowMembers']).contains(prefs.getString('username'))) {
+      if (party_list[i]['maxMembers'] != party_list[i]['nowMembers'].length &&
+          !List<String>.from(party_list[i]['nowMembers'])
+              .contains(prefs.getString('username'))) {
         tempPost.add(Post(
             partyName: party_list[i]['name'],
             currentMembersCount: party_list[i]['nowMembers'].length,
@@ -94,6 +91,13 @@ class _PartyPageState extends State<PartyPage> {
     }
     sortPosts();
     conn.close();
+  }
+
+  void enterParty(Post post) {
+
+
+
+
   }
 
   String searchText = '';
@@ -120,7 +124,11 @@ class _PartyPageState extends State<PartyPage> {
           description: post.description,
         );
       },
-    );
+    ).then((value) {
+      if (value) {
+        enterParty(post);
+      }
+    });
   }
 
   void sortPosts() {
@@ -220,29 +228,29 @@ class _PartyPageState extends State<PartyPage> {
             ],
           ),
           if (!_running)
-            if(posts.isNotEmpty)
-            Expanded(
-
-              child: ListView.builder(
-                itemCount: filteredPosts.length,
-                itemBuilder: (context, index) {
-                  final post = filteredPosts[index];
-                  return ListTile(
-                    title: Text(post.partyName),
-                    subtitle: Text(
-                    '${post.tag!=""?'태그: ${post.tag} | ':''}현재 인원 : ${post.currentMembersCount}/${post.totalMembers}'),
-                    // 게시글 내용을 표시
-                    onTap: () {
-                      showPartyDetails(context, post);
-                    },
-                  );
-                },
+            if (posts.isNotEmpty)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: filteredPosts.length,
+                  itemBuilder: (context, index) {
+                    final post = filteredPosts[index];
+                    return ListTile(
+                      title: Text(post.partyName),
+                      subtitle: Text(
+                          '${post.tag != "" ? '태그: ${post.tag} | ' : ''}현재 인원 : ${post.currentMembersCount}/${post.totalMembers}'),
+                      // 게시글 내용을 표시
+                      onTap: () {
+                        showPartyDetails(context, post);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-            if(posts.isEmpty&&!_running)
-              Expanded(child: Align(
-                child: Text("참여 할 수 있는 파티가 없습니다."),
-              )),
+          if (posts.isEmpty && !_running)
+            Expanded(
+                child: Align(
+              child: Text("참여 할 수 있는 파티가 없습니다."),
+            )),
           if (_running)
             Expanded(
               child: Align(
@@ -255,9 +263,10 @@ class _PartyPageState extends State<PartyPage> {
               FloatingActionButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MakePartyPage())).then((e) {
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MakePartyPage()))
+                        .then((value) {
                       loadParty();
                     });
                   },

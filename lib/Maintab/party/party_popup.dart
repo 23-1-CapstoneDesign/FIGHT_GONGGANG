@@ -35,12 +35,28 @@ class PartyDetailsPopup extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
+                Navigator.pop(context, true);
+
+
                 // 입장 버튼을 누른 후의 동작
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.yellow,
+                backgroundColor: Colors.green,
               ),
               child: Text('입장'),
+            ),
+            SizedBox(width:20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+
+
+                // 입장 버튼을 누른 후의 동작
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: Text('돌아가기'),
             ),
           ],
         ),

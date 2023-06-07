@@ -247,11 +247,7 @@ var infowindow = new kakao.maps.InfoWindow({
       );
     ''',
                 onTapMarker: (message) {
-                  Fluttertoast.showToast(
-                    msg: message.message,
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                  );
+
                   try {
                     setState(() {
                       selected_index = points.indexWhere(

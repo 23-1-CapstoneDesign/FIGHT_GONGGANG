@@ -10,8 +10,9 @@ import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
 
-class HomePage extends StatefulWidget {
+import 'myParty.dart';
 
+class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -30,8 +31,8 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         body: Container(
           padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
+            shrinkWrap: true,
             children: [
               timeTable,
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -58,17 +59,38 @@ class _HomePageState extends State<HomePage> {
                 thickness: 1,
                 indent: 16,
                 endIndent: 16,
-              )
-              ,
+              ),
               Align(
-
                 child: Text(
-                  "청년 정책",
-                  style: TextStyle(fontSize: 30),
+                  "참여중인 파티",
+                  style: TextStyle(fontSize: 20),
                   textAlign: TextAlign.center,
                 ),
               ),
-              Expanded(child: GalleryWidget())
+              SizedBox(
+                height: 200,
+                child: Expanded(
+                  child: MyParty(),
+                ),
+              ),
+              Container(
+                color: Color.fromRGBO(0, 0, 0, 0.1),
+                child: Column(
+                  children: [
+                    Align(
+                      child: Text(
+                        "청년 정책",
+                        style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(
+                        height: 200,
+                        child:
+                            Row(children: [Expanded(child: GalleryWidget())]))
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -79,11 +101,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   @override
   void initState() {
     super.initState();
-
-    
   }
 }

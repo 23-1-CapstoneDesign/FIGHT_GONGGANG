@@ -131,7 +131,7 @@ class MyPageState extends State<MyPage> {
                     Column(
                       // mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        FGRoundTextField(text: "이메일: $email@sunmoon.ac.kr"),
+                        FGRoundTextField(text: "이메일: $email@sunmoon.ac.kr",height: 50.0,),
                         SizedBox(
                           height: 10,
                         ),

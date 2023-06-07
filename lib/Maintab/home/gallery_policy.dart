@@ -22,6 +22,7 @@ class _GalleryWidgetState extends State<GalleryWidget> {
 
   @override
   void initState() {
+    _launchUrl(Uri.parse("http://10.0.2.2:5000/?text=1"));
     getData();
   }
 
@@ -159,6 +160,8 @@ class _GalleryWidgetState extends State<GalleryWidget> {
                     }
                     else {
                       _launchUrl(Uri.parse(policy?['사이트 링크 주소']));
+                      // _launchUrl(Uri.parse("http://10.0.2.2:5000/?text=1"));
+
                     }
                 }:null,
                 child: Text(
@@ -184,9 +187,11 @@ class _GalleryWidgetState extends State<GalleryWidget> {
     return ListView.builder(
       scrollDirection: Axis.horizontal, // 수평 스크롤을 위해 설정
       itemCount: result?.length,
+      shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
         if (_dataloaded)
           return GestureDetector(
+
             onTap: () {
               // 카드를 클릭했을 때 실행되는 코드
               showPolicyPopup(result![index]);

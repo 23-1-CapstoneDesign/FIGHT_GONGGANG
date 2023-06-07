@@ -9,8 +9,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
-class Messages extends StatefulWidget {
 
+class Messages extends StatefulWidget {
+  String chatRoomID;
+
+  Messages({super.key, required this.chatRoomID});
 
   @override
   _MessagesState createState() => _MessagesState();
@@ -23,9 +26,10 @@ class _MessagesState extends State<Messages> {
   Uint8List? image;
 
   ImageProvider? imageProvider;
+
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     getUserInfo();
     getPrefs();
@@ -47,18 +51,17 @@ class _MessagesState extends State<Messages> {
     });
   }
 
-  final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance
-      .collection('chat')
-      .doc("sdf")
-      .collection("chat")
-      .orderBy('time', descending: true)
-      .snapshots();
-
-
   @override
   Widget build(BuildContext context) {
+    final Stream<QuerySnapshot> usersStream = FirebaseFirestore.instance
+        .collection('chat')
+        .doc(widget.chatRoomID)
+        .collection("chat")
+        .orderBy('time', descending: true)
+        .snapshots();
+
     return StreamBuilder(
-      stream: _usersStream,
+      stream: usersStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -68,21 +71,16 @@ class _MessagesState extends State<Messages> {
 
         List<QueryDocumentSnapshot>? chatDocs = snapshot.data?.docs;
 
-
-
         return ListView.builder(
           reverse: true,
           itemCount: chatDocs?.length,
           itemBuilder: (context, index) {
             return ChatBubbles(
-                chatDocs?[index]['text'],
-                chatDocs?[index]['userID'] ==
-                    prefs?.getString('email').toString(),
-                chatDocs?[index]['userName'],
-
-
-
-            )            ;
+              chatDocs?[index]['text'],
+              chatDocs?[index]['userID'] ==
+                  prefs?.getString('email').toString(),
+              chatDocs?[index]['userName'],
+            );
           },
         );
       },

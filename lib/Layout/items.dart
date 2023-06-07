@@ -79,14 +79,17 @@ class FGRoundButton extends StatelessWidget{
 
 class FGRoundTextField extends StatelessWidget{
   final String text;
-  const FGRoundTextField({super.key,required this.text});
+  final double height;
+  const FGRoundTextField({super.key,required this.text,this.height=35.0});
+
+
   @override
   Widget build(BuildContext context) {
 
     return Container(
       alignment: Alignment.centerLeft,
       width: 200,
-      height: 35,
+      height: this.height,
       decoration: BoxDecoration(
         border: Border.all(
           color: Colors.black, // 윤곽선 색상

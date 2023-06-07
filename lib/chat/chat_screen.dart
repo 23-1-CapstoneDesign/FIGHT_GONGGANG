@@ -6,7 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class ChatScreen extends StatefulWidget {
-
+  String chatRoomID;
+  String chatRoomName;
+  ChatScreen({required this.chatRoomID,required this.chatRoomName});
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -34,18 +36,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.chatRoomID);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat screen'),
+        title: Text("파티명 : ${widget.chatRoomName}"),
         actions: [
           IconButton(
             icon: Icon(
-              Icons.exit_to_app_sharp,
+              Icons.menu,
               color: Colors.white,
             ),
             onPressed: () {
-              _authentication.signOut();
-              //Navigator.pop(context);
+              Navigator.pop(context);
             },
           )
         ],
@@ -54,12 +56,13 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: Messages(),
+              child: Messages(chatRoomID: widget.chatRoomID),
             ),
-            NewMessage(),
+            NewMessage(chatRoomID: widget.chatRoomID),
           ],
         ),
       ),
+
     );
   }
 }

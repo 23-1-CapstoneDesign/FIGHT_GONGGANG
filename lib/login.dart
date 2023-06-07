@@ -41,8 +41,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _loginfn = true;
   double height = 0;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -54,6 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     User? user = await FirebaseAuth.instance.authStateChanges().first;
 
     if (user != null) {
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MaintabPage()),
@@ -90,11 +89,11 @@ class _LoginPageState extends State<LoginPage> {
 
     //todo 디버그모드에서만 사용
     assert(() {
-      // email = "admin";
-      // password = "admin1";
+      email = "admin";
+      password = "admin1";
 
-      email = "test1";
-      password = "test12";
+      // email = "test1";
+      // password = "test12";
       return true;
     }());
 
@@ -152,16 +151,18 @@ class _LoginPageState extends State<LoginPage> {
 
     bool login;
 
-      UserCredential? userCredential = await signInUser(email, password);
+    UserCredential? userCredential = await signInUser(email, password);
     conn.close();
-      if (find != null && userCredential != null) {
+    if (find != null && userCredential != null) {
       prefs.setString('username', find['username']);
-
-        return true;
-      } else {
-        return false;
+      if (find['profile'] != null) {
+        print(find['profile']);
+        prefs.setString('profile', find['profile']);
       }
-
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void showLoginErrorPopup() {

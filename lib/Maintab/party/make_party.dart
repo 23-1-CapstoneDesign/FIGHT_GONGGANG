@@ -34,7 +34,7 @@ class _MakePartyPageState extends State<MakePartyPage> {
     );
       return;
     }
-  
+
     if (mounted) {
       setState(() {
         _running = true;

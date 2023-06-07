@@ -26,9 +26,22 @@ class _ChatBubblesState extends State<ChatBubbles> {
 
   @override
   void initState() {
+    if (widget.isMe) {
+      myProfile();
+    } else {
+      fetchDataFromMongoDB();
+    }
+  }
 
-    fetchDataFromMongoDB();
-
+  void myProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        image = (prefs.getString('profile') != null
+            ? (base64Decode(prefs.getString('profile').toString()))
+            : null);
+      });
+    }
   }
 
   void fetchDataFromMongoDB() async {
@@ -38,8 +51,7 @@ class _ChatBubblesState extends State<ChatBubbles> {
     await conn.open();
     mongo.DbCollection collection = conn.collection('users');
 
-    final result =
-        await collection.findOne({"username": widget.userName});
+    final result = await collection.findOne({"username": widget.userName});
     if (mounted) {
       setState(() {
         image = (result!['profile'] != null
@@ -128,11 +140,9 @@ class _ChatBubblesState extends State<ChatBubbles> {
         right: widget.isMe ? 5 : null,
         left: widget.isMe ? null : 5,
         child: CircleAvatar(
-          backgroundImage: (image != null)
-              ? MemoryImage(image!):null,
-          child: (image != null)
-              ? null
-              : Icon(Icons.person, color: Colors.white),
+          backgroundImage: (image != null) ? MemoryImage(image!) : null,
+          child:
+              (image != null) ? null : Icon(Icons.person, color: Colors.white),
         ),
       ),
     ]);

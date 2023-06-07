@@ -31,7 +31,7 @@ class _MaintabPageState extends State<MaintabPage> {
     MapPage(),
     CommunityPage(),
     MyPage(),
-    ChatScreen(),
+
   ];
 
   @override
@@ -64,10 +64,6 @@ class _MaintabPageState extends State<MaintabPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.perm_identity),
             label: 'Mypage',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.perm_identity),
-            label: 'Chat',
           ),
 
         ],
