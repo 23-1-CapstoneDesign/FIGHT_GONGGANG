@@ -129,6 +129,7 @@ class AddClassState extends State<AddClass> {
                         }).toList();
 
                         if (finding.isNotEmpty) {
+
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -151,8 +152,10 @@ class AddClassState extends State<AddClass> {
                               );
                             },
                           );
+                          conn.close();
                           return;
                         }
+
                       }
 
                       for (int i = 0; i < times; i++) {
@@ -210,7 +213,7 @@ class AddClassState extends State<AddClass> {
                         }
                         Navigator.of(context).pop();
                       }
-
+                      conn.close();
 
                     }),
                 SizedBox(width: 0),

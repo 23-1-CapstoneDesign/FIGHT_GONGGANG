@@ -50,7 +50,8 @@ class MyApp extends StatelessWidget {
           dialogTheme: DialogTheme(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0))),
-          textTheme: GoogleFonts.gamjaFlowerTextTheme()),
+          textTheme: GoogleFonts.gamjaFlowerTextTheme()
+              .copyWith(bodyMedium: TextStyle(fontSize: 20.0),)),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

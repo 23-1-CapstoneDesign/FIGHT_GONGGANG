@@ -68,7 +68,7 @@ class TimeTableState extends State<TimeTable> {
       appointment.add(_getClassAppointments(result[i]['className'],
           result[i]['startTime'], result[i]['endTime'], result[i]['date']));
     }
-
+    conn.close();
     return appointment;
   }
 

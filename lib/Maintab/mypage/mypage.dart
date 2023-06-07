@@ -71,6 +71,7 @@ class MyPageState extends State<MyPage> {
         // await image.writeAsBytes(base64Decode(result!['profile']!=null?base64Decode(result!['profile']):''));
       });
     }
+    conn.close();
   }
 
   @override

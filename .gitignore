@@ -44,7 +44,7 @@ GoogleService-Info.plist
 app.*.map.json
 
 test.dart
-
+temp.dart
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile

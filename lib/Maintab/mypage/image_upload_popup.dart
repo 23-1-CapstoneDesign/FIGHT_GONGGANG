@@ -68,6 +68,7 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
           gravity: ToastGravity.BOTTOM,
         );
       }
+      conn.close();
     } else {
       Fluttertoast.showToast(
         msg: "이미지가 업로드 되지 않았습니다.",

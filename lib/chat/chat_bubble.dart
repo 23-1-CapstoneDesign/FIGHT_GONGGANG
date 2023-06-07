@@ -39,7 +39,7 @@ class _ChatBubblesState extends State<ChatBubbles> {
     mongo.DbCollection collection = conn.collection('users');
 
     final result =
-        await collection.findOne({"email": prefs.getString('email')});
+        await collection.findOne({"username": widget.userName});
     if (mounted) {
       setState(() {
         image = (result!['profile'] != null

@@ -41,6 +41,8 @@ class _LoginPageState extends State<LoginPage> {
   bool _loginfn = true;
   double height = 0;
 
+
+
   @override
   void initState() {
     super.initState();
@@ -151,6 +153,7 @@ class _LoginPageState extends State<LoginPage> {
     bool login;
 
       UserCredential? userCredential = await signInUser(email, password);
+    conn.close();
       if (find != null && userCredential != null) {
       prefs.setString('username', find['username']);
 

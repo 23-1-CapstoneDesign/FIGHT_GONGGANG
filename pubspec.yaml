@@ -60,6 +60,7 @@ dependencies:
   firebase_messaging: ^14.6.1
   flutter_chat_bubble: ^2.0.2
   url_launcher: ^6.1.11
+  animated_toggle_switch: ^0.6.2
 
 dependency_overrides:
   intl: ^0.18.1

@@ -76,9 +76,9 @@ class _MaintabPageState extends State<MaintabPage> {
     );
   }
 
-  void onTabTapped(int index) {
+  void onTabTapped(int index) async{
     if (index == 2) {
-      Permission.location.request();
+     await Permission.location.request();
       Permission.location.status.then((val) {
         if (val.isDenied) {
           Permission.location.request().then((val) {

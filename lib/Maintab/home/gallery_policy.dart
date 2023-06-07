@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
@@ -24,6 +25,9 @@ class _GalleryWidgetState extends State<GalleryWidget> {
     getData();
   }
 
+
+
+
   void getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     mongo.Db conn = await mongo.Db.create(dburl);
@@ -38,15 +42,19 @@ class _GalleryWidgetState extends State<GalleryWidget> {
         setState(() {
           result = list;
           _dataloaded = true;
+
         });
       }
     });
   }
 
   Future<void> _launchUrl(Uri url) async {
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
-    }
+    canLaunchUrl(url).then((value) async{
+      if(value)
+      if (!await launchUrl(url)) {
+        throw Exception('Could not launch $url');
+      }
+    });
   }
 
   void showPolicyPopup(Map<String, dynamic>? policy) {
@@ -140,13 +148,19 @@ class _GalleryWidgetState extends State<GalleryWidget> {
               endIndent: 16,
             ),
             TextButton(
-                onPressed: () {
-                  // if (!policy?['사이트 링크 주소'].startsWith('http://') && !policy?['사이트 링크 주소'].startsWith('https://')) {
-                  //   _launchUrl( Uri.parse('http:'+policy?['사이트 링크 주소']));
-                  // }
-                  // _launchUrl( Uri.parse(policy?['사이트 링크 주소']));
-                  //
-                },
+                onPressed: policy!=null&&policy['사이트 링크 주소'].toString().contains(".")?() {
+                    if (!policy?['사이트 링크 주소'].startsWith('http://') &&
+                        !policy?['사이트 링크 주소'].startsWith('https://')) {
+                      Uri? uri = Uri.tryParse("http://"+policy?['사이트 링크 주소']);
+                      if(uri!=null && uri.isAbsolute) {
+
+                        _launchUrl(uri);
+                      }
+                    }
+                    else {
+                      _launchUrl(Uri.parse(policy?['사이트 링크 주소']));
+                    }
+                }:null,
                 child: Text(
                   "사이트 링크:${policy?['사이트 링크 주소']}",
                   style: TextStyle(color: Colors.black),

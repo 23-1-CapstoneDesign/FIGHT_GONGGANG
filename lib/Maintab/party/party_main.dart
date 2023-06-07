@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import '../../Layout/navbar.dart';
 
 import 'party_popup.dart';
 import 'make_party.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class Post {
   final String partyName;
   final String tag;
-  final int currentMembers;
+  final int currentMembersCount;
+  final List<String> currentMembers;
   final int totalMembers;
   final String? description;
+  final DateTime createdTime;
 
   Post({
     required this.partyName,
     required this.tag,
+    required this.currentMembersCount,
     required this.currentMembers,
     required this.totalMembers,
+    required this.createdTime,
     this.description,
   });
 }
@@ -31,13 +37,64 @@ class PartyPage extends StatefulWidget {
 }
 
 class _PartyPageState extends State<PartyPage> {
-  List<Post> posts = [
-    Post(partyName: '파티1', tag: ' #태그1', currentMembers: 3, totalMembers: 5),
-    Post(partyName: '파티2', tag: ' #태그2', currentMembers: 2, totalMembers: 4),
-    Post(partyName: '파티3', tag: ' #태그3', currentMembers: 1, totalMembers: 3),
-    Post(partyName: '파티4', tag: ' #태그4', currentMembers: 4, totalMembers: 6),
-    // 추후 DB연결
+  static final dburl = dotenv.env["MONGO_URL"].toString();
+  List<Post> posts = [];
+  bool _running = false;
+  List<String> _sortType = [
+    '이름순↑',
+    '이름순↓',
+    '오래된 순',
+    '최신 생성순',
+    '참여인원↑',
+    '참여인원↓'
   ];
+  String _selectedType = "이름순↑";
+
+  @override
+  void initState() {
+    loadParty();
+  }
+
+  void loadParty() async {
+    if (mounted) {
+      setState(() {
+        _running = true;
+      });
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // DB insert 부분
+    mongo.Db conn = await mongo.Db.create(dburl);
+    await conn.open();
+    mongo.DbCollection collection = conn.collection('party');
+
+    var party_list = await collection.find().toList();
+    List<Post> tempPost = [];
+    for (int i = 0; i < party_list.length; i++) {
+      // print(party_list[i]['nowMembers']);
+
+      print(prefs.getString('username'));
+    print(List<String>.from(party_list[i]['nowMembers']));
+    print(List<String>.from(party_list[i]['nowMembers']).contains(prefs.getString('username')));
+      if (party_list[i]['maxMembers'] != party_list[i]['nowMembers'].length&&!List<String>.from(party_list[i]['nowMembers']).contains(prefs.getString('username'))) {
+        tempPost.add(Post(
+            partyName: party_list[i]['name'],
+            currentMembersCount: party_list[i]['nowMembers'].length,
+            currentMembers: List<String>.from(party_list[i]['nowMembers']),
+            tag: party_list[i]['tags'],
+            totalMembers: party_list[i]['maxMembers'],
+            createdTime: party_list[i]['createdTime'],
+            description: party_list[i]['description']));
+      }
+    }
+    if (mounted) {
+      setState(() {
+        posts = tempPost;
+        _running = false;
+      });
+    }
+    sortPosts();
+    conn.close();
+  }
 
   String searchText = '';
 
@@ -58,7 +115,7 @@ class _PartyPageState extends State<PartyPage> {
         return PartyDetailsPopup(
           partyName: post.partyName,
           tag: [post.tag],
-          currentMembers: post.currentMembers,
+          currentMembers: post.currentMembersCount,
           totalMembers: post.totalMembers,
           description: post.description,
         );
@@ -66,21 +123,57 @@ class _PartyPageState extends State<PartyPage> {
     );
   }
 
+  void sortPosts() {
+    if (mounted) {
+      setState(() {
+        if (_selectedType == _sortType[0]) {
+          //이름순
+          posts.sort((a, b) {
+            return a.partyName.compareTo(b.partyName);
+          });
+        } else if (_selectedType == _sortType[1]) {
+          //이름 역순
+          posts.sort((a, b) {
+            return b.partyName.compareTo(a.partyName);
+          });
+        } else if (_selectedType == _sortType[2]) {
+          //이름 역순
+          posts.sort((a, b) {
+            return a.createdTime.compareTo(b.createdTime);
+          });
+        } else if (_selectedType == _sortType[3]) {
+          //이름 역순
+          posts.sort((a, b) {
+            return b.createdTime.compareTo(a.createdTime);
+          });
+        } else if (_selectedType == _sortType[4]) {
+          //이름 역순
+          posts.sort((a, b) {
+            return b.currentMembersCount.compareTo(a.currentMembersCount);
+          });
+        } else if (_selectedType == _sortType[5]) {
+          //이름 역순
+          posts.sort((a, b) {
+            return a.currentMembersCount.compareTo(b.currentMembersCount);
+          });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('파티 목록'),
-      ),
       body: Column(
         children: [
           Container(
             margin: EdgeInsets.all(10),
             child: TextField(
               onChanged: (value) {
-                setState(() {
-                  searchText = value;
-                });
+                if (mounted)
+                  setState(() {
+                    searchText = value;
+                  });
               },
               decoration: InputDecoration(
                 hintText: '검색',
@@ -91,23 +184,71 @@ class _PartyPageState extends State<PartyPage> {
               ),
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredPosts.length,
-              itemBuilder: (context, index) {
-                final post = filteredPosts[index];
-                return ListTile(
-                  title: Text(post.partyName),
-                  subtitle: Text(
-                      '태그 : ${post.tag} | 현재 인원 : ${post.currentMembers}/${post.totalMembers}'),
-                  // 게시글 내용을 표시
-                  onTap: () {
-                    showPartyDetails(context, post);
-                  },
-                );
-              },
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text("정렬방식 : ", style: TextStyle(fontSize: 15)),
+                  DropdownButton<String>(
+                    value: _selectedType,
+                    items: _sortType.map((String item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(item),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedType = newValue.toString();
+                      });
+                      sortPosts();
+                    },
+                  ),
+                ],
+              ),
+              Row(children: [
+                IconButton(
+                    onPressed: () {
+                      loadParty();
+                    },
+                    icon: const Icon(Icons.refresh)),
+                SizedBox(
+                  width: 20,
+                ),
+              ]),
+            ],
           ),
+          if (!_running)
+            if(posts.isNotEmpty)
+            Expanded(
+
+              child: ListView.builder(
+                itemCount: filteredPosts.length,
+                itemBuilder: (context, index) {
+                  final post = filteredPosts[index];
+                  return ListTile(
+                    title: Text(post.partyName),
+                    subtitle: Text(
+                    '${post.tag!=""?'태그: ${post.tag} | ':''}현재 인원 : ${post.currentMembersCount}/${post.totalMembers}'),
+                    // 게시글 내용을 표시
+                    onTap: () {
+                      showPartyDetails(context, post);
+                    },
+                  );
+                },
+              ),
+            ),
+            if(posts.isEmpty&&!_running)
+              Expanded(child: Align(
+                child: Text("참여 할 수 있는 파티가 없습니다."),
+              )),
+          if (_running)
+            Expanded(
+              child: Align(
+                child: Text("데이터를 불러오는 중입니다."),
+              ),
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -116,7 +257,9 @@ class _PartyPageState extends State<PartyPage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => MakePartyPage()));
+                            builder: (context) => MakePartyPage())).then((e) {
+                      loadParty();
+                    });
                   },
                   backgroundColor: Colors.lightGreen,
                   child: Icon(Icons.add)),

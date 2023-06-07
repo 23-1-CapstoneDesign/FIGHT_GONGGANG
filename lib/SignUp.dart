@@ -199,6 +199,7 @@ class _SignupPageState extends State<SignupPage> {
                           _checked = "사용불가";
                         });
                       }
+                      conn.close();
                     }
                   },
                   child: Text(_checked))
