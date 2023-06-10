@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'dart:typed_data';
 
 import 'package:fighting_gonggang/chat/chat_bubble.dart';
@@ -6,20 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mongo_dart/mongo_dart.dart' as mongo;
+
 
 class Messages extends StatefulWidget {
-  String chatRoomID;
+  final String chatRoomID;
 
-  Messages({super.key, required this.chatRoomID});
+  const Messages({super.key, required this.chatRoomID});
 
   @override
-  _MessagesState createState() => _MessagesState();
+  MessagesState createState() => MessagesState();
 }
 
-class _MessagesState extends State<Messages> {
+class MessagesState extends State<Messages> {
   User? user;
   SharedPreferences? prefs;
   static final dburl = dotenv.env["MONGO_URL"].toString();
@@ -64,7 +64,7 @@ class _MessagesState extends State<Messages> {
       stream: usersStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         }
@@ -75,12 +75,15 @@ class _MessagesState extends State<Messages> {
           reverse: true,
           itemCount: chatDocs?.length,
           itemBuilder: (context, index) {
+
             return ChatBubbles(
+              widget.chatRoomID,
               chatDocs?[index]['text'],
               chatDocs?[index]['userID'] ==
                   prefs?.getString('email').toString(),
               chatDocs?[index]['userName'],
             );
+
           },
         );
       },

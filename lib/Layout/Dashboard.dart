@@ -1,4 +1,4 @@
-import 'package:fighting_gonggang/Login.dart';
+import 'package:fighting_gonggang/login/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,10 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /*
 ≡ <- 이런 모양의 버튼을 클릭했을 때 나타나는 대쉬보드
-
-
  */
-class dashboard extends StatelessWidget {
+class Dashboard extends StatelessWidget {
+  const Dashboard({super.key});
+
 
 
 
@@ -19,7 +19,7 @@ class dashboard extends StatelessWidget {
   return ListView(
     padding: EdgeInsets.zero,
     children: <Widget>[
-      DrawerHeader(
+      const DrawerHeader(
         decoration: BoxDecoration(
           color: Colors.green,
         ),
@@ -31,23 +31,11 @@ class dashboard extends StatelessWidget {
           ),
         ),
       ),
+
+
       ListTile(
-        leading: Icon(Icons.person),
-        title: Text('내 정보'),
-        onTap: () {
-// Navigator.pushNamed(context, '/profile');
-        },
-      ),
-      ListTile(
-        leading: Icon(Icons.settings),
-        title: Text('설정'),
-        onTap: () {
-// Navigator.pushNamed(context, '/settings');
-        },
-      ),
-      ListTile(
-        leading: Icon(Icons.logout),
-        title: Text('로그아웃'),
+        leading: const Icon(Icons.logout),
+        title: const Text('로그아웃'),
         onTap: () async {
 // 로그아웃 처리 로직
           SharedPreferences prefs = await SharedPreferences.getInstance();

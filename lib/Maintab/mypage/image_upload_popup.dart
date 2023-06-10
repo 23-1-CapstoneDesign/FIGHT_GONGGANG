@@ -10,9 +10,9 @@ import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ImageUploadPopup extends StatefulWidget {
-  String email;
+  final String email;
 
-  ImageUploadPopup(this.email);
+  const ImageUploadPopup(this.email, {super.key});
 
   @override
   ImageUploadPopupState createState() => ImageUploadPopupState();
@@ -22,7 +22,10 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
   File? _imageFile;
   String? _encodedImage;
   bool reset = false;
-  static final dburl = dotenv.env["MONGO_URL"].toString();
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
+
+  bool run=true;
+
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
@@ -40,6 +43,7 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
     setState(() {
       reset = true;
     });
+    updateMongo();
   }
 
   void encodeImage(File imageFile) async {
@@ -50,18 +54,47 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
   }
 
   void updateMongo() async {
-    if (_encodedImage != null) {
+
+
+    if (_encodedImage != null||reset) {
+if(mounted) {
+        setState(() {
+          run = false;
+        });
+
+      }
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      mongo.Db conn = await mongo.Db.create(dburl);
+      mongo.Db conn = await mongo.Db.create(dbUrl);
       await conn.open();
       mongo.DbCollection collection = conn.collection('users');
+      var modifier = mongo.ModifierBuilder().set('profile',_encodedImage);
+
+      if(reset){
+        modifier = mongo.ModifierBuilder().unset('profile');
+
+      }
 
       var result = await collection.updateOne(
-          {'email': widget.email}, mongo.modify.set('profile', _encodedImage));
+          {'email': widget.email}, modifier);
+
 
       if (result.isSuccess) {
+        if(_encodedImage!=null) {
+
+          prefs.setString("profile", _encodedImage.toString());
+        }
+        else{
+          prefs.remove("profile");
+        }
+        conn.close();
         Navigator.pop(context, _encodedImage);
       } else {
+        if(mounted) {
+          setState(() {
+            run = true;
+          });
+
+        }
         Fluttertoast.showToast(
           msg: "이미지가 업로드 되지 않았습니다.",
           toastLength: Toast.LENGTH_SHORT,
@@ -70,6 +103,12 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
       }
       conn.close();
     } else {
+      if(mounted) {
+        setState(() {
+          run = true;
+        });
+
+      }
       Fluttertoast.showToast(
         msg: "이미지가 업로드 되지 않았습니다.",
         toastLength: Toast.LENGTH_SHORT,
@@ -82,8 +121,13 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text("업로드 방식"),
-        FGRoundButton(text: "x", onPressed: () {Navigator.pop(context);},textStyle: TextStyle(fontSize: 30,fontWeight: FontWeight.bold)),
+        const Text("업로드 방식"),
+        FGRoundButton(
+            text: "x",
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            textStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
       ]),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -93,23 +137,17 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-
               ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.gallery),
-                child: Text("앨범"),
+                child: const Text("앨범"),
               ),
-
               ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.camera),
-                child: Text("카메라"),
+                child: const Text("카메라"),
               ),
-
             ],
-          ),      ElevatedButton(
-            onPressed: () => _pickImage(ImageSource.camera),
-            child: Text("기본 이미지"),
           ),
-          if (_imageFile != null) Text('업로드 된 이미지', style: TextStyle()),
+          if (_imageFile != null) const Text('업로드 된 이미지', style: TextStyle()),
           if (_imageFile != null)
             Container(
               width: 150,
@@ -126,12 +164,25 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
             ),
         ],
       ),
+
       actions: [
+        if(run)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             ElevatedButton(
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.greenAccent), // 원하는 배경색으로 설정합니다.
+              onPressed: () => setBasic(),
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.greenAccent)),
+              child: const Text("기본 이미지"),
+            ),
+            const SizedBox(width: 10,),
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Colors.greenAccent), // 원하는 배경색으로 설정합니다.
               ),
               onPressed: () {
                 updateMongo();
@@ -140,6 +191,7 @@ class ImageUploadPopupState extends State<ImageUploadPopup> {
             ),
           ],
         ),
+        if(!run)const Align(child:Text("업로드중...") )
       ],
     );
   }

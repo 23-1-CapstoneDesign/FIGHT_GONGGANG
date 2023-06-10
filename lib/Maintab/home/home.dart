@@ -1,24 +1,21 @@
-import 'package:fighting_gonggang/Maintab.dart';
+import 'package:fighting_gonggang/Maintab/Maintab.dart';
 import 'package:fighting_gonggang/Maintab/home/gallery_policy.dart';
 import 'package:fighting_gonggang/Maintab/timetable/AddClass.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
-
-import 'myParty.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:fighting_gonggang/Maintab/home/my_party.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
 // class HomePage extends StatelessWidget {
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var timeTable = TimeTable();
@@ -30,7 +27,7 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         body: Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: ListView(
             shrinkWrap: true,
             children: [
@@ -45,57 +42,50 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MaintabPage()));
+                              builder: (context) => MainTabPage()));
                     });
                   },
-                  child: Text('시간표 등록하러 가기'),
+                  child: const Text('시간표 등록하러 가기'),
                 ),
 
                 //
               ]),
-              Divider(
-                color: Colors.black,
-                height: 1,
-                thickness: 1,
-                indent: 16,
-                endIndent: 16,
-              ),
+
               Align(
                 child: Text(
+
                   "참여중인 파티",
-                  style: TextStyle(fontSize: 20),
+                  style:GoogleFonts.gamjaFlower(fontSize: 30),
                   textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(
-                height: 200,
+                height: 130,
                 child: Expanded(
                   child: MyParty(),
                 ),
               ),
-              Container(
-                color: Color.fromRGBO(0, 0, 0, 0.1),
-                child: Column(
-                  children: [
-                    Align(
-                      child: Text(
-                        "청년 정책",
-                        style: TextStyle(fontSize: 20),
-                        textAlign: TextAlign.center,
-                      ),
+              Column(
+                children: [
+                  Align(
+                    child: Text(
+                      "청년 정책",
+        style:GoogleFonts.gamjaFlower(fontSize: 25),
+                      // style: TextStyle(fontSize: 40),
+                      textAlign: TextAlign.center,
                     ),
-                    SizedBox(
-                        height: 200,
-                        child:
-                            Row(children: [Expanded(child: GalleryWidget())]))
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                      height: 200,
+                      child:
+                          Row(children: [Expanded(child: GalleryWidget())]))
+                ],
               ),
             ],
           ),
         ),
-        drawer: Drawer(
-          child: dashboard(),
+        drawer: const Drawer(
+          child: Dashboard(),
         ),
       ),
     );

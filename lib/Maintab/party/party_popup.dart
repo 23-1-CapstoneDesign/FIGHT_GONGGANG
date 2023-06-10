@@ -7,7 +7,7 @@ class PartyDetailsPopup extends StatelessWidget {
   final int totalMembers;
   final String? description;
 
-  PartyDetailsPopup({
+  const PartyDetailsPopup({super.key,
     required this.partyName,
     required this.tag,
     required this.currentMembers,
@@ -24,7 +24,7 @@ class PartyDetailsPopup extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          RichText(text:TextSpan(text:'태그: ${tag.join(" ")}',style: TextStyle(color: Colors.black))),
+          RichText(text:TextSpan(text:'태그: ${tag.join(" ")}',style: const TextStyle(color: Colors.black))),
           Text('현재 인원: $currentMembers/$totalMembers'),
           Text('소개: $description'),
         ],
@@ -43,9 +43,9 @@ class PartyDetailsPopup extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: Text('입장'),
+              child: const Text('입장'),
             ),
-            SizedBox(width:20),
+            const SizedBox(width:20),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context, false);
@@ -56,7 +56,7 @@ class PartyDetailsPopup extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
               ),
-              child: Text('돌아가기'),
+              child: const Text('돌아가기'),
             ),
           ],
         ),

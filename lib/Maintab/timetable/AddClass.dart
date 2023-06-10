@@ -1,10 +1,7 @@
 import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
 import 'package:flutter/material.dart';
-import 'package:cupertino_date_textbox/cupertino_date_textbox.dart';
-import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:fighting_gonggang/Layout/items.dart';
-import 'package:fighting_gonggang/dbconfig/db.dart';
+
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -15,19 +12,19 @@ import 'package:shared_preferences/shared_preferences.dart';
  */
 
 class AddClass extends StatefulWidget {
+  const AddClass({super.key});
+
   @override
   AddClassState createState() => AddClassState();
 }
 
 class AddClassState extends State<AddClass> {
-  static final dburl = dotenv.env["MONGO_URL"].toString();
-  DateTime _selectedTime = DateTime.now();
-  int _selectedDayIndex = -1;
-  List<String> _daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
-  List<String> _daysOfWeekENG = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
-  List<String> _hours = [];
-  List<String> _minutes = [];
-  late Database db;
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
+
+  final List<String> _daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
+  final List<String> _daysOfWeekENG = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+  final List<String> _hours = [];
+  final List<String> _minutes = [];
   String selectedValue = "항목 1"; // 선택한 항목을 저장할 변수
   final _classController = TextEditingController();
   final _professorController = TextEditingController();
@@ -73,7 +70,7 @@ class AddClassState extends State<AddClass> {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       // DB insert 부분
-                      mongo.Db conn = await mongo.Db.create(dburl);
+                      mongo.Db conn = await mongo.Db.create(dbUrl);
                       await conn.open();
                       mongo.DbCollection collection = conn.collection('class');
                       List<String> startTimes = [];
@@ -211,6 +208,7 @@ class AddClassState extends State<AddClass> {
                                 "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}",
                           });
                         }
+                        conn.close();
                         Navigator.of(context).pop();
                       }
                       conn.close();

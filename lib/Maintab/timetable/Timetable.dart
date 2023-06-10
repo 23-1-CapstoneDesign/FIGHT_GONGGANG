@@ -14,6 +14,8 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 class TimeTable extends StatefulWidget {
   static GlobalKey<TimeTableState> myWidgetKey =
   GlobalKey<TimeTableState>();
+
+  const TimeTable({super.key});
   @override
   TimeTableState createState() => TimeTableState();
 }
@@ -22,12 +24,8 @@ class TimeTableState extends State<TimeTable> {
 
 
   List<Appointment> _appointments = [];
-  int _selectedDayIndex = -1;
-  List<String> _classes = [];
-  List<String> _startTimes = [];
-  List<String> _endTimes = [];
-  late CalendarDataSource _dataSource;
-  static final dburl = dotenv.env["MONGO_URL"].toString();
+
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
 
   DateTime now = DateTime.now();
 
@@ -39,7 +37,7 @@ class TimeTableState extends State<TimeTable> {
   void initState() {
     super.initState();
     _appointments = [];
-    _dataSource = _getCalendarDataSource();
+
 
     getCurrentLocation().then((List<Appointment> value) {
       if(mounted) {
@@ -56,14 +54,13 @@ class TimeTableState extends State<TimeTable> {
 
   Future<List<Appointment>> getCurrentLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('class');
     var result =
         await collection.find({'user': prefs.getString('username')}).toList();
 
     List<Appointment> appointment = [];
-    List<int> weekdays = [DateTime.monday];
     for (var i = 0; i < result.length; i++) {
       appointment.add(_getClassAppointments(result[i]['className'],
           result[i]['startTime'], result[i]['endTime'], result[i]['date']));
@@ -120,46 +117,43 @@ class TimeTableState extends State<TimeTable> {
       endTime: DateTime(startDate.year, 3, 3,
           endAt[0], endAt[1], 0),
       color: Colors.blue,
-      recurrenceRule: 'FREQ=WEEKLY;BYDAY=${day};',
+      recurrenceRule: 'FREQ=WEEKLY;BYDAY=$day;',
     );
 
     return appointment;
 
   }
 
-  void _getPartyAppointments(
-      String subjectName, String startTime, String endTime, String date) {
-    List<int> startAt = [
-      int.parse(startTime.split(":")[0]),
-      int.parse(startTime.split(":")[1])
-    ];
-    List<int> endAt = [
-      int.parse(endTime.split(":")[0]),
-      int.parse(endTime.split(":")[1])
-    ];
-    // 메주 월요일마다 일정 추가
-    DateTime startDate = DateTime.now();
-
-    // 메모: 여기에서 원하는 일정을 만들 수 있습니다.
-    // 예를 들면, 'eventName'과 'startTime', 'endTime' 등을 포함하는 Appointment 객체를 만들 수 있습니다.
-    Appointment appointment = Appointment(
-      subject: subjectName,
-      startTime: DateTime(startDate.year, startDate.month, startDate.day),
-      endTime: DateTime(startDate.year, startDate.month, startDate.day,
-          endAt[0], endAt[1], 0),
-      color: Colors.blue,
-    );
-
-    _appointments.add(appointment);
-  }
+  //todo 파티를 시간표에 추가하기 위한 함수
+  // void _getPartyAppointments(
+  //     String subjectName, String startTime, String endTime, String date) {
+  //   List<int> startAt = [
+  //     int.parse(startTime.split(":")[0]),
+  //     int.parse(startTime.split(":")[1])
+  //   ];
+  //   List<int> endAt = [
+  //     int.parse(endTime.split(":")[0]),
+  //     int.parse(endTime.split(":")[1])
+  //   ];
+  //   // 메주 월요일마다 일정 추가
+  //   DateTime startDate = DateTime.now();
+  //
+  //   // 메모: 여기에서 원하는 일정을 만들 수 있습니다.
+  //   // 예를 들면, 'eventName'과 'startTime', 'endTime' 등을 포함하는 Appointment 객체를 만들 수 있습니다.
+  //   Appointment appointment = Appointment(
+  //     subject: subjectName,
+  //     startTime: DateTime(startDate.year, startDate.month, startDate.day),
+  //     endTime: DateTime(startDate.year, startDate.month, startDate.day,
+  //         endAt[0], endAt[1], 0),
+  //     color: Colors.blue,
+  //   );
+  //
+  //   _appointments.add(appointment);
+  // }
 
 
   void getTempAppointments(
       String subjectName, String startTime, String endTime, String day) {
-    List<int> startAt = [
-      int.parse(startTime.split(":")[0]),
-      int.parse(startTime.split(":")[1])
-    ];
     List<int> endAt = [
       int.parse(endTime.split(":")[0]),
       int.parse(endTime.split(":")[1])
@@ -173,7 +167,7 @@ class TimeTableState extends State<TimeTable> {
       endTime: DateTime(startDate.year, startDate.month, startDate.day,
           endAt[0], endAt[1], 0),
       color: Colors.lightBlue,
-      recurrenceRule: 'FREQ=WEEKLY;BYDAY=${day};',
+      recurrenceRule: 'FREQ=WEEKLY;BYDAY=$day;',
     );
 
     setState(() {

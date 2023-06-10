@@ -1,15 +1,15 @@
+import 'package:fighting_gonggang/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fighting_gonggang/Layout/Dashboard.dart';
-import '../../Layout/navbar.dart';
 
-import 'party_popup.dart';
-import 'make_party.dart';
+import 'package:fighting_gonggang/Maintab/party/party_popup.dart';
+import 'package:fighting_gonggang/Maintab/party/make_party.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class Post {
+  final String id;
   final String partyName;
   final String tag;
   final int currentMembersCount;
@@ -19,6 +19,7 @@ class Post {
   final DateTime createdTime;
 
   Post({
+    required this.id,
     required this.partyName,
     required this.tag,
     required this.currentMembersCount,
@@ -30,17 +31,18 @@ class Post {
 }
 
 class PartyPage extends StatefulWidget {
-  DateTime? _lastPressedTime; // 마지막으로 뒤로가기 버튼을 누른 시간
+  const PartyPage({super.key});
+
 
   @override
-  _PartyPageState createState() => _PartyPageState();
+  PartyPageState createState() => PartyPageState();
 }
 
-class _PartyPageState extends State<PartyPage> {
-  static final dburl = dotenv.env["MONGO_URL"].toString();
+class PartyPageState extends State<PartyPage> {
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
   List<Post> posts = [];
   bool _running = false;
-  List<String> _sortType = [
+  final List<String> _sortType = [
     '이름순↑',
     '이름순↓',
     '오래된 순',
@@ -52,6 +54,7 @@ class _PartyPageState extends State<PartyPage> {
 
   @override
   void initState() {
+    super.initState();
     loadParty();
   }
 
@@ -63,24 +66,25 @@ class _PartyPageState extends State<PartyPage> {
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // DB insert 부분
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('party');
 
-    var party_list = await collection.find().toList();
+    var partyList = await collection.find().toList();
     List<Post> tempPost = [];
-    for (int i = 0; i < party_list.length; i++) {
-      if (party_list[i]['maxMembers'] != party_list[i]['nowMembers'].length &&
-          !List<String>.from(party_list[i]['nowMembers'])
+    for (int i = 0; i < partyList.length; i++) {
+      if (partyList[i]['maxMembers'] != partyList[i]['nowMembers'].length &&
+          !List<String>.from(partyList[i]['nowMembers'])
               .contains(prefs.getString('username'))) {
         tempPost.add(Post(
-            partyName: party_list[i]['name'],
-            currentMembersCount: party_list[i]['nowMembers'].length,
-            currentMembers: List<String>.from(party_list[i]['nowMembers']),
-            tag: party_list[i]['tags'],
-            totalMembers: party_list[i]['maxMembers'],
-            createdTime: party_list[i]['createdTime'],
-            description: party_list[i]['description']));
+            id: partyList[i]['_id'].toHexString(),
+            partyName: partyList[i]['name'],
+            currentMembersCount: partyList[i]['nowMembers'].length,
+            currentMembers: List<String>.from(partyList[i]['nowMembers']),
+            tag: partyList[i]['tags'],
+            totalMembers: partyList[i]['maxMembers'],
+            createdTime: partyList[i]['createdTime'],
+            description: partyList[i]['description']));
       }
     }
     if (mounted) {
@@ -93,8 +97,40 @@ class _PartyPageState extends State<PartyPage> {
     conn.close();
   }
 
-  void enterParty(Post post) {
+  void enterParty(Post post) async{
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // DB insert 부분
+    mongo.Db conn = await mongo.Db.create(dbUrl);
+    await conn.open();
+    mongo.DbCollection collection = conn.collection('party');
+    final query={      "name":post.partyName,
+      "createdTime":post.createdTime};
+    final document = await collection.findOne(query);
+
+    if (document != null) {
+
+      document['nowMembers'].add(prefs.getString('username')); // 새로운 데이터 추가
+
+
+      // document['nowMembers'].removeWhere((element) => element == 'dataToRemove'); // 데이터 삭제
+
+      await collection.replaceOne(query,document);
+
+      Fluttertoast.showToast(
+        msg: "${post.partyName}에 참여하였습니다.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      conn.close();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ChatScreen(chatRoomName: post.partyName,chatRoomID: post.id)),
+      );
+    }
+    conn.close();
+
+    // (result?[index]['_id'].toHexString())
 
 
 
@@ -125,7 +161,10 @@ class _PartyPageState extends State<PartyPage> {
         );
       },
     ).then((value) {
-      if (value) {
+
+
+
+      if (value!=null&&value) {
         enterParty(post);
       }
     });
@@ -175,15 +214,16 @@ class _PartyPageState extends State<PartyPage> {
       body: Column(
         children: [
           Container(
-            margin: EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             child: TextField(
               onChanged: (value) {
-                if (mounted)
+                if (mounted) {
                   setState(() {
                     searchText = value;
                   });
+                }
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: '검색',
                 border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
@@ -197,7 +237,7 @@ class _PartyPageState extends State<PartyPage> {
             children: [
               Row(
                 children: [
-                  Text("정렬방식 : ", style: TextStyle(fontSize: 15)),
+                  const Text("정렬방식 : ", style: TextStyle(fontSize: 15)),
                   DropdownButton<String>(
                     value: _selectedType,
                     items: _sortType.map((String item) {
@@ -221,7 +261,7 @@ class _PartyPageState extends State<PartyPage> {
                       loadParty();
                     },
                     icon: const Icon(Icons.refresh)),
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
               ]),
@@ -247,12 +287,13 @@ class _PartyPageState extends State<PartyPage> {
                 ),
               ),
           if (posts.isEmpty && !_running)
-            Expanded(
+            const Expanded(
                 child: Align(
               child: Text("참여 할 수 있는 파티가 없습니다."),
-            )),
+             )
+            ),
           if (_running)
-            Expanded(
+            const Expanded(
               child: Align(
                 child: Text("데이터를 불러오는 중입니다."),
               ),
@@ -265,13 +306,13 @@ class _PartyPageState extends State<PartyPage> {
                     Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => MakePartyPage()))
+                                builder: (context) => const MakePartyPage()))
                         .then((value) {
                       loadParty();
                     });
                   },
                   backgroundColor: Colors.lightGreen,
-                  child: Icon(Icons.add)),
+                  child: const Icon(Icons.add)),
             ],
           )
         ],

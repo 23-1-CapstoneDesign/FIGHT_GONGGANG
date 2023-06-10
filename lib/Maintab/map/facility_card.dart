@@ -1,28 +1,19 @@
 import 'package:fighting_gonggang/Layout/items.dart';
-import 'package:fighting_gonggang/Maintab.dart';
-import 'package:fighting_gonggang/Maintab/home/gallery_policy.dart';
-import 'package:fighting_gonggang/Maintab/timetable/AddClass.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 class FacCard extends StatefulWidget {
-  String facility;
+  final String facility;
 
-  FacCard({this.facility = ""});
+  const FacCard({super.key, this.facility = ""});
 
   @override
-  _FacCardState createState() => _FacCardState();
+  FacCardState createState() => FacCardState();
 }
 
 // class HomePage extends StatelessWidget {
-class _FacCardState extends State<FacCard> {
+class FacCardState extends State<FacCard> {
   static final dburl = dotenv.env["MONGO_URL"].toString();
   List<String> name = [];
   List<String> datelist = [];
@@ -32,10 +23,10 @@ class _FacCardState extends State<FacCard> {
   void setFacility(String facility) async {
     int index = names.indexWhere((element) => element['facility'] == facility);
 
-    print(index);
+
 
     if (index != -1 && mounted) {
-      print(names[index]);
+
 
       setState(() {
         name = List<String>.from(names[index]['names']);
@@ -55,8 +46,6 @@ class _FacCardState extends State<FacCard> {
     await conn.open();
     mongo.DbCollection collection = conn.collection('facility');
 
-    var find = await collection.find({"name": name}).toList();
-    List<Map<String, dynamic>> i = find;
     final pipeline = [
       {
         '\$match': {'name': name}
@@ -78,7 +67,8 @@ class _FacCardState extends State<FacCard> {
       datelist = List<String>.from(result[0]['day']);
 
     });
-    print(datelist);
+    conn.close();
+
   }
 
   void getName() async {
@@ -140,9 +130,8 @@ class _FacCardState extends State<FacCard> {
         children: [
           Row(
             children: [
-              SizedBox(
-                width: 150,
-                child: ListView.builder(
+              ListView(
+                children: [ListView.builder(
                     shrinkWrap: true,
                     itemCount: name.length,
                     itemBuilder: (BuildContext context, int index) {
@@ -151,7 +140,7 @@ class _FacCardState extends State<FacCard> {
                             getReservation(name[index]);
                           },
                           child: Text(name[index]));
-                    }),
+                    })],
               ),
               if (name.isNotEmpty)
                 SizedBox(
@@ -167,8 +156,9 @@ class _FacCardState extends State<FacCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Center(child: Text("예약 현황")),
-                        SizedBox(
+                        const Center(child: Text("예약 현황")),
+
+                        const SizedBox(
                             width: 250, child: FGRoundTextField(text: "시설명:")),
                         SizedBox(
                             height: 40,
@@ -176,10 +166,8 @@ class _FacCardState extends State<FacCard> {
                                 scrollDirection: Axis.horizontal,
                                 itemCount: datelist.length,
                                 itemBuilder: (BuildContext context, int index) {
-                                  // return ElevatedButton(
-                                  // onPressed: () {}, child: Text(datelist[index]));
-                                  // })),
-                                  return Text("");
+
+                                  return const Text("");
                                 }))
                       ],
                     ),
@@ -190,7 +178,9 @@ class _FacCardState extends State<FacCard> {
         ],
       );
     } else {
-      return Column();
+
+      return const Column();
     }
+
   }
 }

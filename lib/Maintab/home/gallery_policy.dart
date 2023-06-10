@@ -1,37 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GalleryWidget extends StatefulWidget {
-  GalleryWidget();
+  const GalleryWidget({super.key});
 
   @override
-  _GalleryWidgetState createState() => _GalleryWidgetState();
+  GalleryWidgetState createState() => GalleryWidgetState();
 }
 
-class _GalleryWidgetState extends State<GalleryWidget> {
-  String? ID;
+class GalleryWidgetState extends State<GalleryWidget> {
+  String? id;
   String? title;
-  static final dburl = dotenv.env["MONGO_URL"].toString();
-  List<Map<String, dynamic>>? result = null;
-  bool _dataloaded = false;
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
+  List<Map<String, dynamic>>? result;
+  bool _dataLoaded = false;
 
   @override
   void initState() {
-    _launchUrl(Uri.parse("http://10.0.2.2:5000/?text=1"));
+    super.initState();
     getData();
   }
 
-
-
-
   void getData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('policy');
 
@@ -42,20 +36,49 @@ class _GalleryWidgetState extends State<GalleryWidget> {
       if (mounted) {
         setState(() {
           result = list;
-          _dataloaded = true;
-
+          _dataLoaded = true;
         });
+      }
+    });
+    conn.close();
+  }
+
+
+  Future<void> _launchUrl(Uri url) async {
+    canLaunchUrl(url).then((value) async {
+      if (value) {
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
       }
     });
   }
 
-  Future<void> _launchUrl(Uri url) async {
-    canLaunchUrl(url).then((value) async{
-      if(value)
-      if (!await launchUrl(url)) {
-        throw Exception('Could not launch $url');
-      }
-    });
+  Future<void> _showConfirmationDialog(Uri url) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('링크 열기'),
+          content: const Text('링크를 여시겠습니까?'),
+          actions: [
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _launchUrl(url);
+              },
+            ),
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void showPolicyPopup(Map<String, dynamic>? policy) {
@@ -64,19 +87,61 @@ class _GalleryWidgetState extends State<GalleryWidget> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Center(
-            child: Text(policy?['정책명']),
+            child: Text(
+              policy?['정책명'],
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text("정책소개:${policy?['정책소개']}"),
-            Divider(
+            const Text(
+              "정책소개 ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("${policy?['정책소개']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
               color: Colors.black,
               height: 1,
               thickness: 1,
               indent: 16,
               endIndent: 16,
             ),
-            Text("지원내용:${policy?['지원내용']}"),
-            Divider(
+            const Text(
+              "정책유형 ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text("${policy?['정책유형']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
+              color: Colors.black,
+              height: 1,
+              thickness: 1,
+              indent: 16,
+              endIndent: 16,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            const Text(
+              "지원내용 ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("${policy?['지원내용']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
               color: Colors.black,
               height: 1,
               thickness: 1,
@@ -85,8 +150,17 @@ class _GalleryWidgetState extends State<GalleryWidget> {
             ),
             if (policy?['지원규모'] != '-' || policy?['지원규모'] != 'null')
               Column(children: [
-                Text("지원규모:${policy?['지원규모']}"),
-                Divider(
+                const Text(
+                  "지원규모 ",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text("${policy?['지원규모']}"),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(
                   color: Colors.black,
                   height: 1,
                   thickness: 1,
@@ -96,8 +170,17 @@ class _GalleryWidgetState extends State<GalleryWidget> {
               ]),
             if (policy?['학력'] != '제한없음')
               Column(children: [
-                Text("학력 제한:${policy?['학력']}"),
-                Divider(
+                const Text(
+                  "학력 제한 ",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text("${policy?['학력']}"),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(
                   color: Colors.black,
                   height: 1,
                   thickness: 1,
@@ -107,8 +190,17 @@ class _GalleryWidgetState extends State<GalleryWidget> {
               ]),
             if (policy?['전공'] != '제한없음')
               Column(children: [
-                Text("전공 제한:${policy?['전공']}"),
-                Divider(
+                const Text(
+                  "전공 제한 ",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text("${policy?['전공']}"),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(
                   color: Colors.black,
                   height: 1,
                   thickness: 1,
@@ -116,63 +208,102 @@ class _GalleryWidgetState extends State<GalleryWidget> {
                   endIndent: 16,
                 )
               ]),
-            Text("연령제한:${policy?['연령']}"),
-            Divider(
+            const Text(
+              "연령제한 ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("${policy?['연령']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
               color: Colors.black,
               height: 1,
               thickness: 1,
               indent: 16,
               endIndent: 16,
             ),
-            Text("신청기관:${policy?['신청기관명']}"),
-            Divider(
+            const Text(
+              "신청기관 ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("${policy?['신청기관명']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
               color: Colors.black,
               height: 1,
               thickness: 1,
               indent: 16,
               endIndent: 16,
             ),
-            Text("신청기간:${policy?['신청기간']}"),
-            Divider(
+            const Text(
+              "신청기간 ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("${policy?['신청기간']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
               color: Colors.black,
               height: 1,
               thickness: 1,
               indent: 16,
               endIndent: 16,
             ),
-            Text("신청절차:${policy?['신청절차']}"),
-            Divider(
+            const Text(
+              "신청절차 ",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text("${policy?['신청절차']}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const Divider(
               color: Colors.black,
-              height: 1,
+              height: 2,
               thickness: 1,
               indent: 16,
               endIndent: 16,
             ),
             TextButton(
-                onPressed: policy!=null&&policy['사이트 링크 주소'].toString().contains(".")?() {
-                    if (!policy?['사이트 링크 주소'].startsWith('http://') &&
-                        !policy?['사이트 링크 주소'].startsWith('https://')) {
-                      Uri? uri = Uri.tryParse("http://"+policy?['사이트 링크 주소']);
-                      if(uri!=null && uri.isAbsolute) {
-
-                        _launchUrl(uri);
-                      }
+                onPressed: policy != null &&
+                    policy['사이트 링크 주소'].toString().contains(".")
+                    ? () {
+                  if (!policy['사이트 링크 주소'].startsWith('http://') &&
+                      !policy['사이트 링크 주소'].startsWith('https://')) {
+                    Uri? uri =
+                    Uri.tryParse("http://${policy['사이트 링크 주소']}");
+                    if (uri != null && uri.isAbsolute) {
+                      _showConfirmationDialog(uri);
                     }
-                    else {
-                      _launchUrl(Uri.parse(policy?['사이트 링크 주소']));
-                      // _launchUrl(Uri.parse("http://10.0.2.2:5000/?text=1"));
-
-                    }
-                }:null,
+                  } else {
+                    _showConfirmationDialog(policy['사이트 링크 주소']);
+                  }
+                }
+                    : null,
                 child: Text(
                   "사이트 링크:${policy?['사이트 링크 주소']}",
-                  style: TextStyle(color: Colors.black),
+                  style: const TextStyle(
+                    decoration: TextDecoration.underline,
+                    color: Colors.blue,
+                  ),
                 )),
           ]),
           actions: [
             Center(
               child: TextButton(
-                child: Text('닫기'),
+                child: const Text('닫기'),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             )
@@ -187,11 +318,9 @@ class _GalleryWidgetState extends State<GalleryWidget> {
     return ListView.builder(
       scrollDirection: Axis.horizontal, // 수평 스크롤을 위해 설정
       itemCount: result?.length,
-      shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
-        if (_dataloaded)
+        if (_dataLoaded) {
           return GestureDetector(
-
             onTap: () {
               // 카드를 클릭했을 때 실행되는 코드
               showPolicyPopup(result![index]);
@@ -199,8 +328,8 @@ class _GalleryWidgetState extends State<GalleryWidget> {
             child: Container(
               width: 200,
               // 카드의 너비를 조정하고 싶은 값으로 설정
-              margin: EdgeInsets.all(16.0),
-              padding: EdgeInsets.all(16.0),
+              margin: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
@@ -209,7 +338,7 @@ class _GalleryWidgetState extends State<GalleryWidget> {
                     color: Colors.grey.withOpacity(0.3),
                     spreadRadius: 2,
                     blurRadius: 5,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -221,15 +350,15 @@ class _GalleryWidgetState extends State<GalleryWidget> {
                     result?[index]['정책명'],
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   Align(
                     alignment: Alignment.center,
                     child: Text(
                       result?[index]['신청기간'],
-                      style: TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -238,6 +367,8 @@ class _GalleryWidgetState extends State<GalleryWidget> {
               ),
             ),
           );
+        }
+        return null;
       },
     );
   }

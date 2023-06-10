@@ -15,8 +15,8 @@ class CommunityPage extends StatelessWidget {
       body: Column(
         children: <Widget>[
           Container(
-            margin: EdgeInsets.all(10),
-            child: TextField(
+            margin: const EdgeInsets.all(10),
+            child: const TextField(
               decoration: InputDecoration(
                 hintText: '전체 글 검색',
                 border: OutlineInputBorder(
@@ -27,12 +27,12 @@ class CommunityPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: ListView(
               children: <Widget>[
                 _buildListItem(context, '자유 게시판'),
-                Divider(),
+                const Divider(),
                 _buildListItem(context, '청년 정책'),
               ],
             ),
@@ -46,12 +46,12 @@ class CommunityPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PostPage(boardType: '자유 게시판'),
+                builder: (context) => const PostPage(boardType: '자유 게시판'),
               ),
             );
           }
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

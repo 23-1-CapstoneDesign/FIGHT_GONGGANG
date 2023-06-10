@@ -116,8 +116,7 @@ class BoardPostDetailPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 LikeButton(postId: postId),
-                SizedBox(width: 8),
-                Text('${_boardData[postId - 1]['likes'].toString()}'),
+
               ],
             ),
           ),

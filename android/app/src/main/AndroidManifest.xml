@@ -24,7 +24,7 @@
     <application
         android:label="fighting_gonggang"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/starting_image"
         android:usesCleartextTraffic="true">
         >
         <activity

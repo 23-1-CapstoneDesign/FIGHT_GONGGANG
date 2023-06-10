@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:fighting_gonggang/Layout/items.dart';
 import 'package:fighting_gonggang/Maintab/mypage/image_upload_popup.dart';
 import 'package:flutter/material.dart';
@@ -8,18 +6,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
-import '../../Layout/navbar.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 
 class MyPage extends StatefulWidget {
+  const MyPage({super.key});
+
   @override
   MyPageState createState() => MyPageState();
 }
 
 class MyPageState extends State<MyPage> {
-  static final dburl = dotenv.env["MONGO_URL"].toString();
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
   String? profileImage;
 
   String email = '';
@@ -31,7 +28,7 @@ class MyPageState extends State<MyPage> {
   @override
   void initState() {
     super.initState();
-    fetchDataFromMongoDB();
+    fetchDataFromMongodb();
   }
 
   void showUploadPopup(BuildContext context) {
@@ -48,12 +45,20 @@ class MyPageState extends State<MyPage> {
           });
         }
       }
+      else{
+        if (mounted) {
+          setState(() {
+            image = null;
+          });
+        }
+
+      }
     });
   }
-  void fetchDataFromMongoDB() async {
+  void fetchDataFromMongodb() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('users');
 
@@ -62,10 +67,10 @@ class MyPageState extends State<MyPage> {
     if (mounted) {
       setState(() {
         email = result!['email'];
-        name = result!['username'];
-        nickname = result!['nickname'];
-        image = (result!['profile'] != null
-            ? (base64Decode(result!['profile']))
+        name = result['username'];
+        nickname = result['nickname'];
+        image = (result['profile'] != null
+            ? (base64Decode(result['profile']))
             : null);
 
         // await image.writeAsBytes(base64Decode(result!['profile']!=null?base64Decode(result!['profile']):''));
@@ -85,7 +90,7 @@ class MyPageState extends State<MyPage> {
       child: Scaffold(
         body: Container(
           width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             // mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
@@ -95,7 +100,7 @@ class MyPageState extends State<MyPage> {
                   children: [
                     Column(
                       children: [
-                        Text('프로필이미지',
+                        const Text('프로필이미지',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Container(
                           width: 150,
@@ -114,43 +119,41 @@ class MyPageState extends State<MyPage> {
                           ),
                           child: (image != null)
                               ? null
-                              : Icon(Icons.person,
+                              : const Icon(Icons.person,
                                   color: Colors.white), // 기본 아이콘
                         ),
                         RawMaterialButton(
                             fillColor: Colors.green,
-                            textStyle: TextStyle(fontSize: 10),
+                            textStyle: const TextStyle(fontSize: 10),
                             onPressed: () {
                               showUploadPopup(context);
                             },
-                            child: Text('프로필 이미지 변경'))
+                            child: const Text('프로필 이미지 변경'))
                       ],
                     ),
-                    SizedBox(width: 16),
-                    // 간격 조정
+                    const SizedBox(width: 16),
                     Column(
-                      // mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         FGRoundTextField(text: "이메일: $email@sunmoon.ac.kr",height: 50.0,),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         FGRoundTextField(text: "   이름: $name"),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         FGRoundTextField(text: "닉네임: $nickname"),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         Align(
                           alignment: Alignment.center,
                             child: RawMaterialButton(
                                 fillColor: Colors.green,
-                                textStyle: TextStyle(fontSize: 10),
+                                textStyle: const TextStyle(fontSize: 10),
                                 onPressed: () {},
-                                child: Text('개인 정보 변경'))),
-                        SizedBox(
+                                child: const Text('개인 정보 변경'))),
+                        const SizedBox(
                           height: 10,
                         ),
                       ],
@@ -158,7 +161,7 @@ class MyPageState extends State<MyPage> {
                   ],
                 ),
               if (email == '')
-                Column(
+                const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [Text("정보 가져오는 중")],
@@ -166,8 +169,8 @@ class MyPageState extends State<MyPage> {
             ],
           ),
         ),
-        drawer: Drawer(
-          child: dashboard(),
+        drawer: const Drawer(
+          child: Dashboard(),
         ),
       ),
     );

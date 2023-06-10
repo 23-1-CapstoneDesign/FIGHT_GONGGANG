@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 
 /*
@@ -31,7 +30,7 @@ import 'package:google_fonts/google_fonts.dart';
       onChanged: onChanged,
       onTap:onTap,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // 원하는 패딩 설정
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20), // 원하는 패딩 설정
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10), // 원하는 테두리 모서리 조정
         ),
@@ -55,8 +54,7 @@ class FGRoundButton extends StatelessWidget{
   Widget build(BuildContext context) {
 
     return RawMaterialButton(
-      constraints: BoxConstraints(
-        // maxWidth:200
+      constraints: const BoxConstraints(
 
         minWidth: 30,
         minHeight: 30,
@@ -64,7 +62,7 @@ class FGRoundButton extends StatelessWidget{
       ),
       elevation: 2.0,
       fillColor: Colors.green,
-      shape: CircleBorder(),
+      shape: const CircleBorder(),
       onPressed: (){
   onPressed();
       },
@@ -89,7 +87,7 @@ class FGRoundTextField extends StatelessWidget{
     return Container(
       alignment: Alignment.centerLeft,
       width: 200,
-      height: this.height,
+      height: height,
       decoration: BoxDecoration(
         border: Border.all(
           color: Colors.black, // 윤곽선 색상
@@ -99,7 +97,7 @@ class FGRoundTextField extends StatelessWidget{
       ),
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),

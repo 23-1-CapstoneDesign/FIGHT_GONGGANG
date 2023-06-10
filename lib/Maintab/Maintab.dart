@@ -1,48 +1,43 @@
-
-import 'package:fighting_gonggang/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'Layout/Dashboard.dart';
+import 'package:fighting_gonggang/Layout/Dashboard.dart';
+import 'package:fighting_gonggang/Maintab/comunity/community_main.dart';
+import 'home/home.dart';
+import 'package:fighting_gonggang/Maintab/mypage/mypage.dart';
+import 'package:fighting_gonggang/Maintab/party/party_main.dart';
+import 'package:fighting_gonggang/Maintab/map/map.dart';
 
-import 'Maintab/comunity/community_main.dart';
-import 'Maintab/home/home.dart';
-import 'Maintab/comunity/comunity.dart';
-import 'Maintab/mypage/mypage.dart';
-import 'Maintab/party/party_main.dart';
-import 'Maintab/map/map.dart';
-import 'Maintab/timetable/Timetable.dart';
-import 'Maintab/timetable/AddClass.dart';
 
-import 'login.dart';
 
-class MaintabPage extends StatefulWidget {
+class MainTabPage extends StatefulWidget {
+  const MainTabPage({super.key});
+
   @override
-  _MaintabPageState createState() => _MaintabPageState();
+  MainTabPageState createState() => MainTabPageState();
 }
 
-class _MaintabPageState extends State<MaintabPage> {
-  DateTime? _lastPressedTime;
+class MainTabPageState extends State<MainTabPage> {
+
   int _currentIndex = 0;
   final List<Widget> _children = [
-    HomePage(),
-    PartyPage(),
-    MapPage(),
-    CommunityPage(),
-    MyPage(),
+    const HomePage(),
+    const PartyPage(),
+    const  MapPage(),
+    const  CommunityPage(),
+    const  MyPage(),
 
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title:Align(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [ const SizedBox(),IconButton(onPressed: (){}, icon: const Icon(Icons.notification_add))],))),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Main',
@@ -63,12 +58,12 @@ class _MaintabPageState extends State<MaintabPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.perm_identity),
-            label: 'Mypage',
+            label: 'MyPage',
           ),
 
         ],
       ),
-      drawer: Drawer(child: dashboard()),
+      drawer: const Drawer(child: Dashboard()),
     );
   }
 
@@ -86,13 +81,13 @@ class _MaintabPageState extends State<MaintabPage> {
               );
             } else {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => MapPage()));
+                  context, MaterialPageRoute(builder: (context) => const MapPage()));
             }
           });
         }
         else{
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => MapPage()));
+              context, MaterialPageRoute(builder: (context) => const MapPage()));
         }
       });
     } else {

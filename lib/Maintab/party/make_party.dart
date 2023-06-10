@@ -5,12 +5,14 @@ import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MakePartyPage extends StatefulWidget {
+  const MakePartyPage({super.key});
+
   @override
-  _MakePartyPageState createState() => _MakePartyPageState();
+  MakePartyPageState createState() => MakePartyPageState();
 }
 
-class _MakePartyPageState extends State<MakePartyPage> {
-  static final dburl = dotenv.env["MONGO_URL"].toString();
+class MakePartyPageState extends State<MakePartyPage> {
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
 
   String title = '';
   String tags = '';
@@ -43,7 +45,7 @@ class _MakePartyPageState extends State<MakePartyPage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // DB insert 부분
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('party');
     try {
@@ -61,6 +63,7 @@ class _MakePartyPageState extends State<MakePartyPage> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
       );
+      conn.close();
       Navigator.pop(context);
     } on Exception {
       if (mounted) {
@@ -69,33 +72,34 @@ class _MakePartyPageState extends State<MakePartyPage> {
         });
       }
     }
-    conn.close();
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('파티 만들기'),
+        title: const Text('파티 만들기'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: '파티 제목',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                if (mounted)
+                if (mounted) {
                   setState(() {
                     title = value;
                   });
+                }
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: _tagController,
               decoration: InputDecoration(
@@ -104,7 +108,7 @@ class _MakePartyPageState extends State<MakePartyPage> {
                 hintStyle: TextStyle(
                   color: Colors.grey[400],
                 ),
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
                 if (mounted) {
@@ -114,7 +118,7 @@ class _MakePartyPageState extends State<MakePartyPage> {
                 }
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
               height: 60,
               decoration: BoxDecoration(
@@ -125,7 +129,7 @@ class _MakePartyPageState extends State<MakePartyPage> {
                   borderRadius: BorderRadius.circular(5)),
               child: Row(
                 children: [
-                  Text("최대 참여 인원  :  "),
+                  const Text("최대 참여 인원  :  "),
                   DropdownButton<int>(
                     value: _selectedMaxMembers,
                     items: List<DropdownMenuItem<int>>.generate(9, (index) {
@@ -133,41 +137,43 @@ class _MakePartyPageState extends State<MakePartyPage> {
 
                       return DropdownMenuItem<int>(
                         value: index,
-                        child: Text('$value', style: TextStyle(fontSize: 30)),
+                        child: Text('$value', style: const TextStyle(fontSize: 30)),
                       );
                     }),
                     onChanged: (int? newValue) {
                       if (newValue != null) {
-                        if (mounted)
+                        if (mounted) {
                           setState(() {
                             _selectedMaxMembers = newValue + 2;
                           });
+                        }
                       }
                     },
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               maxLines: 6,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: '파티 소개글을 작성하세요',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                if (mounted)
+                if (mounted) {
                   setState(() {
                     description = value;
                   });
+                }
               },
             ),
             if (!_running)
               ElevatedButton(
                 onPressed: submitParty,
-                child: Text('파티 만들기'),
+                child: const Text('파티 만들기'),
               ),
-            if (_running) Text("파티생성중..."),
+            if (_running) const Text("파티생성중..."),
           ],
         ),
       ),

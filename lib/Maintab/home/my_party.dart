@@ -1,27 +1,26 @@
 import 'package:fighting_gonggang/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 
 class MyParty extends StatefulWidget {
-  MyParty();
+  const MyParty({super.key});
 
   @override
-  _MyPartyState createState() => _MyPartyState();
+  MyPartyState createState() => MyPartyState();
 }
 
-class _MyPartyState extends State<MyParty> {
+class MyPartyState extends State<MyParty> {
 
-  static final dburl = dotenv.env["MONGO_URL"].toString();
-  List<Map<String, dynamic>>? result = null;
-  bool _dataloaded = false;
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
+  List<Map<String, dynamic>>? result;
+  bool _dataLoaded = false;
 
   @override
   void initState() {
+    super.initState();
     getData();
   }
 
@@ -30,7 +29,7 @@ class _MyPartyState extends State<MyParty> {
 
   void getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('party');
 
@@ -43,20 +42,14 @@ class _MyPartyState extends State<MyParty> {
       if (mounted) {
         setState(() {
           result = list;
-          _dataloaded = true;
+          _dataLoaded = true;
         });
       }
     });
+    conn.close();
   }
 
-  Future<void> _launchUrl(Uri url) async {
-    canLaunchUrl(url).then((value) async{
-      if(value)
-        if (!await launchUrl(url)) {
-          throw Exception('Could not launch $url');
-        }
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +58,7 @@ class _MyPartyState extends State<MyParty> {
       scrollDirection: Axis.horizontal,
       shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
-        if (_dataloaded)
+        if (_dataLoaded) {
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -75,9 +68,10 @@ class _MyPartyState extends State<MyParty> {
             },
             child: Container(
               width: 200,
+              height: 10,
               // 카드의 너비를 조정하고 싶은 값으로 설정
-              margin: EdgeInsets.all(16.0),
-              padding: EdgeInsets.all(16.0),
+              margin: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
@@ -86,7 +80,7 @@ class _MyPartyState extends State<MyParty> {
                     color: Colors.grey.withOpacity(0.3),
                     spreadRadius: 2,
                     blurRadius: 5,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -100,6 +94,8 @@ class _MyPartyState extends State<MyParty> {
               ),
             ),
           );
+        }
+        return null;
       },
     );
   }

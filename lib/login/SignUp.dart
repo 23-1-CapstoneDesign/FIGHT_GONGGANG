@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'dart:core';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:fighting_gonggang/Layout/items.dart';
@@ -12,32 +10,32 @@ import 'package:fighting_gonggang/Layout/items.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
+
   @override
-  _SignupPageState createState() => _SignupPageState();
+  SignupPageState createState() => SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class SignupPageState extends State<SignupPage> {
   final _nameController = TextEditingController();
   final _nicknameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _repasswordController = TextEditingController();
-  int _currentIndex = 0;
+  final _againPasswordController = TextEditingController();
 
   bool _nicknameCheck = false;
   String _checkPassword = "";
-  String _checkRepassword = "";
+  String _checkAgainPassword = "";
   bool _passwordIsVisible = false;
-  bool _RepasswordIsVisible = false;
+  bool _againPasswordIsVisible = false;
   String _checked = "중복확인";
-  List<String> _domains = ["sunmoon.ac.kr"];
-  String _selectedType = "sunmoon.ac.kr";
-  static final dburl = dotenv.env["MONGO_URL"].toString();
-  FocusNode _nameNode = FocusNode();
-  FocusNode _emailNode = FocusNode();
-  FocusNode _nicknameNode = FocusNode();
-  FocusNode _passwordNode = FocusNode();
-  FocusNode _ckPasswordNode = FocusNode();
+
+  static final dbUrl = dotenv.env["MONGODB_URL"].toString();
+  final FocusNode _nameNode = FocusNode();
+  final FocusNode _emailNode = FocusNode();
+  final FocusNode _nicknameNode = FocusNode();
+  final FocusNode _passwordNode = FocusNode();
+  final FocusNode _ckPasswordNode = FocusNode();
   bool nameFocused = false;
   bool emailFocused = false;
   bool passwordFocused = false;
@@ -82,7 +80,7 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   void nicknameCheck(String nickname) async {
-    mongo.Db conn = await mongo.Db.create(dburl);
+    mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('users');
 
@@ -90,7 +88,7 @@ class _SignupPageState extends State<SignupPage> {
     RegExp pattern = RegExp(r'^[가-힣a-zA-Z0-9]{2,8}$');
     // pattern.hasMatch(nickname);
 
-    if (find.length == 0 && pattern.hasMatch(nickname)) {
+    if (find.isEmpty && pattern.hasMatch(nickname)) {
       setState(() {
         _nicknameCheck = true;
       });
@@ -99,6 +97,7 @@ class _SignupPageState extends State<SignupPage> {
         _nicknameCheck = false;
       });
     }
+    conn.close();
   }
 
   // 파이어베이스 사용자 등록 함수
@@ -127,7 +126,7 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('회원가입'),
+        title: const Text('회원가입'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -135,7 +134,7 @@ class _SignupPageState extends State<SignupPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             FGTextField(controller: _nameController, text: "이름*"),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             FGTextField(
@@ -150,7 +149,7 @@ class _SignupPageState extends State<SignupPage> {
                 style: TextStyle(
                   color: _nicknameCheck ? Colors.blue : Colors.red,
                 )),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Row(children: [
@@ -166,7 +165,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
               ),
-              Align(
+              const Align(
                 alignment: Alignment.center,
                 child: Text(
                   '@Sunmoon.ac.kr',
@@ -183,14 +182,14 @@ class _SignupPageState extends State<SignupPage> {
                         gravity: ToastGravity.BOTTOM,
                       );
                     } else {
-                      mongo.Db conn = await mongo.Db.create(dburl);
+                      mongo.Db conn = await mongo.Db.create(dbUrl);
                       await conn.open();
                       mongo.DbCollection collection = conn.collection('users');
 
                       var find =
                           await collection.find({'email': checkId}).toList();
 
-                      if (find.length == 0) {
+                      if (find.isEmpty) {
                         setState(() {
                           _checked = "사용가능";
                         });
@@ -204,14 +203,14 @@ class _SignupPageState extends State<SignupPage> {
                   },
                   child: Text(_checked))
             ]),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             if (emailFocused)
-              // todo 이메일
+
               Container(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: const Text(
                   '',
                   style: TextStyle(fontSize: 14),
                 ),
@@ -246,34 +245,34 @@ class _SignupPageState extends State<SignupPage> {
             Visibility(
                 visible: _passwordIsVisible,
                 child: Text(_checkPassword,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.red,
                     ))),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             FGTextField(
               text: "비밀번호 재확인*",
-              controller: _repasswordController,
+              controller: _againPasswordController,
               obscureText: true,
               onChanged: (String input) {
                 if (_passwordController.text != input) {
                   setState(() {
-                    _checkRepassword = "비밀번호가 일치하지 않습니다.";
-                    _RepasswordIsVisible = true;
+                    _checkAgainPassword = "비밀번호가 일치하지 않습니다.";
+                    _againPasswordIsVisible = true;
                   });
                 } else {
                   setState(() {
-                    _checkRepassword = "";
-                    _RepasswordIsVisible = false;
+                    _checkAgainPassword = "";
+                    _againPasswordIsVisible = false;
                   });
                 }
               },
             ),
             Visibility(
-                visible: _RepasswordIsVisible,
-                child: Text(_checkRepassword,
-                    style: TextStyle(
+                visible: _againPasswordIsVisible,
+                child: Text(_checkAgainPassword,
+                    style: const TextStyle(
                       color: Colors.red,
                     ))),
             Padding(
@@ -303,8 +302,8 @@ class _SignupPageState extends State<SignupPage> {
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                     );
-                  } else if (_repasswordController.text.isEmpty ||
-                      _checkRepassword != "") {
+                  } else if (_againPasswordController.text.isEmpty ||
+                      _checkAgainPassword != "") {
                     Fluttertoast.showToast(
                       msg: "비밀번호 재확인이 완료되지 않았습니다.",
                       toastLength: Toast.LENGTH_SHORT,
@@ -312,9 +311,8 @@ class _SignupPageState extends State<SignupPage> {
                     );
                   } else {
                     // 회원가입 로직 처리
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    mongo.Db conn = await mongo.Db.create(dburl);
+
+                    mongo.Db conn = await mongo.Db.create(dbUrl);
                     await conn.open();
                     mongo.DbCollection collection = conn.collection('users');
 
@@ -338,6 +336,7 @@ class _SignupPageState extends State<SignupPage> {
                           );
                           _checked = "중복확인";
                         } else {
+                          conn.close();
                           if (context.mounted) Navigator.of(context).pop();
                         }
                       } catch (e) {
@@ -354,9 +353,10 @@ class _SignupPageState extends State<SignupPage> {
                         gravity: ToastGravity.BOTTOM,
                       );
                     }
+                    conn.close();
                   }
                 },
-                child: Text('회원가입'),
+                child: const Text('회원가입'),
               ),
             ),
           ],
