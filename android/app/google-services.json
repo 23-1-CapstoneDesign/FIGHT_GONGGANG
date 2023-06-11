@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "334731624903",
+    "project_id": "fight-gonggang-d1a8d",
+    "storage_bucket": "fight-gonggang-d1a8d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334731624903:android:877ba2884ba107f6ac19e2",
+        "android_client_info": {
+          "package_name": "com.sm5.fighting_gonggang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR3913bKfEhRw7g1E3eJhLsUUqwl0sUmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
