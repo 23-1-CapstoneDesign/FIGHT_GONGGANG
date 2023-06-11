@@ -22,13 +22,11 @@ class MyPartyState extends State<MyParty> {
   String nowTime = DateFormat('yyyy MM dd HH:mm').format(DateTime.now());
 
   Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-
-
-    });
+    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {});
     getData();
   }
 
@@ -55,8 +53,10 @@ class MyPartyState extends State<MyParty> {
           } else if (b['reserve'] == null) {
             return -1;
           } else {
-            return (a['reserve']['day'].toString() + a['reserve']['time'].toString())
-                    .compareTo((b['reserve']['day'].toString() + b['reserve']['time'].toString()));
+            return (a['reserve']['day'].toString() +
+                    a['reserve']['time'].toString())
+                .compareTo((b['reserve']['day'].toString() +
+                    b['reserve']['time'].toString()));
           }
         });
 
@@ -69,8 +69,7 @@ class MyPartyState extends State<MyParty> {
 
   //모임 시작까지 남은 시간을 표시 하기위함
   int calculateMinuteDifference(String time1, String time2) {
-
-    DateFormat format =DateFormat('yyyy MM dd HH:mm');
+    DateFormat format = DateFormat('yyyy MM dd HH:mm');
     // DateFormat format = DateFormat('yyyyMMddHH:mm');
     DateTime dateTime1 = format.parse(time1);
     DateTime dateTime2 = format.parse(time2);
@@ -90,33 +89,26 @@ class MyPartyState extends State<MyParty> {
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
           bool reserved = false;
-          String text="";
-          if (result?[index]['reserve'] != null&&nowTime.compareTo(
-              result?[index]['reserve']['day'] +result?[index]['reserve']['time']) ==
-              -1) {
-            reserved=true;
-            int minute=calculateMinuteDifference(nowTime,'${result?[index]['reserve']['day']} ${result?[index]['reserve']['time']}');
-            text='${(minute%60).toString()}분';
-            if(minute>=60){
-              minute=minute~/60;
-              text='${(minute%60).toString()}시간 $text';
-              if(minute>=24){
-                minute=minute~/24;
-                text='${minute.toString()}일 $text';
+          String text = "";
+          if (result?[index]['reserve'] != null &&
+              nowTime.compareTo(result?[index]['reserve']['day'] +
+                      result?[index]['reserve']['time']) ==
+                  -1) {
+            reserved = true;
+            int minute = calculateMinuteDifference(nowTime,
+                '${result?[index]['reserve']['day']} ${result?[index]['reserve']['time']}');
+            text = '${(minute % 60).toString()}분';
+            if (minute >= 60) {
+              minute = minute ~/ 60;
+              text = '${(minute % 60).toString()}시간 $text';
+              if (minute >= 24) {
+                minute = minute ~/ 24;
+                text = '${minute.toString()}일 $text';
               }
-            
             }
-
-
           }
 
-
-
-
-
-
           return GestureDetector(
-
             onTap: () {
               Navigator.push(
                 context,
@@ -148,10 +140,20 @@ class MyPartyState extends State<MyParty> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text("파티명 : ${result?[index]['name']}",style: GoogleFonts.gamjaFlower(fontSize: 30,fontWeight: FontWeight.bold),),
-                  if(reserved)
-                  Text("       예약 현황\n예약시설: ${result?[index]['reserve']['fac']}\n모임까지: $text",style:GoogleFonts.gamjaFlower(fontSize:20)),
-
+                  Text(
+                    "파티명 : ${result?[index]['name']}",
+                    style: GoogleFonts.gamjaFlower(
+                        fontSize: 30, fontWeight: FontWeight.bold),
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (reserved)
+                    Text(
+                      "       예약 현황\n예약시설: ${result?[index]['reserve']['fac']}\n모임까지: $text",
+                      style: GoogleFonts.gamjaFlower(fontSize: 20),
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),

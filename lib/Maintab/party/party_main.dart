@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fighting_gonggang/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -105,7 +106,7 @@ class PartyPageState extends State<PartyPage> {
     final query = {"name": post.partyName, "createdTime": post.createdTime};
     final document = await collection.findOne(query);
 
-    if (document != null) {
+    if (document != null&&document['maxMembers']>document['nowMembers'].length) {
       document['nowMembers'].add(prefs.getString('username')); // 새로운 데이터 추가
 
       // document['nowMembers'].removeWhere((element) => element == 'dataToRemove'); // 데이터 삭제
@@ -117,6 +118,18 @@ class PartyPageState extends State<PartyPage> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
       );
+
+      FirebaseFirestore.instance
+          .collection('chat')
+          .doc(post.id)
+          .collection("chat")
+          .add({
+        'text': '${prefs.getString("username")} 님이 입장하였습니다. ',
+        'time': Timestamp.now(),
+        'userID': 'notice',
+        'userName': 'notice',
+      });
+
       conn.close();
       if(!mounted) return;
       Navigator.push(
@@ -124,7 +137,10 @@ class PartyPageState extends State<PartyPage> {
         MaterialPageRoute(
             builder: (context) =>
                 ChatScreen(chatRoomName: post.partyName, chatRoomID: post.id)),
-      );
+      ).then((val){
+        loadParty();
+
+      });
     }
     conn.close();
 

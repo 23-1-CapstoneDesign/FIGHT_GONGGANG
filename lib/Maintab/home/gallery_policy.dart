@@ -22,8 +22,6 @@ class GalleryWidgetState extends State<GalleryWidget> {
   void initState() {
     super.initState();
     getData();
-
-
   }
 
   void getData() async {
@@ -98,10 +96,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
             const Text(
               "정책소개 ",
               style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text("${policy?['정책소개']}"),
+            Text(
+              "${policy?['정책소개']}",
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -114,9 +118,14 @@ class GalleryWidgetState extends State<GalleryWidget> {
             ),
             const Text(
               "정책유형 ",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
-            Text("${policy?['정책유형']}"),
+            Text(
+              "${policy?['정책유형']}",
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -132,11 +141,14 @@ class GalleryWidgetState extends State<GalleryWidget> {
             ),
             const Text(
               "지원내용 ",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+            Text(
+              "${policy?['지원내용']}",
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontSize: 15,
               ),
             ),
-            Text("${policy?['지원내용']}"),
             const SizedBox(
               height: 10,
             ),
@@ -152,10 +164,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
                 const Text(
                   "지원규모 ",
                   style: TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text("${policy?['지원규모']}"),
+                Text(
+                  "${policy?['지원규모']}",
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -172,10 +190,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
                 const Text(
                   "학력 제한 ",
                   style: TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text("${policy?['학력']}"),
+                Text(
+                  "${policy?['학력']}",
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -192,10 +216,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
                 const Text(
                   "전공 제한 ",
                   style: TextStyle(
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text("${policy?['전공']}"),
+                Text(
+                  "${policy?['전공']}",
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -210,10 +240,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
             const Text(
               "연령제한 ",
               style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text("${policy?['연령']}"),
+            Text(
+              "${policy?['연령']}",
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -227,10 +263,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
             const Text(
               "신청기관 ",
               style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text("${policy?['신청기관명']}"),
+            Text(
+              "${policy?['신청기관명']}",
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -244,10 +286,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
             const Text(
               "신청기간 ",
               style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text("${policy?['신청기간']}"),
+            Text(
+              "${policy?['신청기간']}",
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -261,10 +309,16 @@ class GalleryWidgetState extends State<GalleryWidget> {
             const Text(
               "신청절차 ",
               style: TextStyle(
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text("${policy?['신청절차']}"),
+            Text(
+              "${policy?['신청절차']}",
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -275,29 +329,38 @@ class GalleryWidgetState extends State<GalleryWidget> {
               indent: 16,
               endIndent: 16,
             ),
-            TextButton(
-                onPressed: policy != null &&
-                        policy['사이트 링크 주소'].toString().contains(".")
-                    ? () {
-                        if (!policy['사이트 링크 주소'].startsWith('http://') &&
-                            !policy['사이트 링크 주소'].startsWith('https://')) {
-                          Uri? uri =
-                              Uri.tryParse("http://${policy['사이트 링크 주소']}");
-                          if (uri != null && uri.isAbsolute) {
-                            _showConfirmationDialog(uri);
+            Row(
+              children: [
+                Text("사이트 링크:",
+                    style: TextStyle(
+                      fontSize: 15,
+                    )),
+                TextButton(
+                    onPressed: policy != null &&
+                            policy['사이트 링크 주소'].toString().contains(".")
+                        ? () {
+                            if (!policy['사이트 링크 주소'].startsWith('http://') &&
+                                !policy['사이트 링크 주소'].startsWith('https://')) {
+                              Uri? uri =
+                                  Uri.tryParse("http://${policy['사이트 링크 주소']}");
+                              if (uri != null && uri.isAbsolute) {
+                                _showConfirmationDialog(uri);
+                              }
+                            } else {
+                              _showConfirmationDialog(policy['사이트 링크 주소']);
+                            }
                           }
-                        } else {
-                          _showConfirmationDialog(policy['사이트 링크 주소']);
-                        }
-                      }
-                    : null,
-                child: Text(
-                  "사이트 링크:${policy?['사이트 링크 주소']}",
-                  style: const TextStyle(
-                    decoration: TextDecoration.underline,
-                    color: Colors.blue,
-                  ),
-                )),
+                        : null,
+                    child: Text(
+                      "${policy?['사이트 링크 주소']}",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        decoration: TextDecoration.underline,
+                        color: Colors.blue,
+                      ),
+                    )),
+              ],
+            ),
           ]),
           actions: [
             Center(
@@ -371,10 +434,11 @@ class GalleryWidgetState extends State<GalleryWidget> {
         },
       );
     } else {
-      return const Align(child: SizedBox(
-
-        child: CircularProgressIndicator(),
-      ),);
+      return const Align(
+        child: SizedBox(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,7 +17,7 @@ class NewMessageState extends State<NewMessage> {
   static final dbUrl = dotenv.env["MONGODB_URL"].toString();
   String? image;
   List<String> notice = ["!원화관", "!본관", "!자연관", "!인문관", "!학생회관", "!all", "!전부"];
-
+  List<String> reserve = ["!예약", "!예약보기", "!예약 보기", "!예약 현황"];
   List<Map<String, dynamic>> names = [];
   List<String> name = [];
 
@@ -36,7 +35,6 @@ class NewMessageState extends State<NewMessage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     FocusScope.of(context).unfocus();
 
-
     FirebaseFirestore.instance
         .collection('chat')
         .doc(widget.chatRoomID)
@@ -47,16 +45,18 @@ class NewMessageState extends State<NewMessage> {
       'userID': prefs.getString('email'),
       'userName': prefs.getString('username'),
     });
+    String message = _userEnterMessage;
+    _controller.clear();
+    if (mounted) {
+      setState(() {
+        _userEnterMessage = '';
+      });
+    }
+    if (notice.contains(message)) {
+      setFacility(message.replaceAll("!", ""));
 
-    if (notice.contains(_userEnterMessage)) {
-
-      setFacility(_userEnterMessage.replaceAll("!", ""));
-
-
-
-      if(name.isNotEmpty) {
-
-        for(int i=0;i<name.length;i++) {
+      if (name.isNotEmpty) {
+        for (int i = 0; i < name.length; i++) {
           FirebaseFirestore.instance
               .collection('chat')
               .doc(widget.chatRoomID)
@@ -70,9 +70,26 @@ class NewMessageState extends State<NewMessage> {
           });
         }
       }
-    }
+    } else if (reserve.contains(message)) {
+      mongo.Db conn = await mongo.Db.create(dbUrl);
+      await conn.open();
+      mongo.DbCollection collection = conn.collection('party');
+      var query = {"_id": mongo.ObjectId.fromHexString(widget.chatRoomID)};
 
-    _controller.clear();
+      var result = await collection.findOne(query);
+
+      FirebaseFirestore.instance
+          .collection('chat')
+          .doc(widget.chatRoomID)
+          .collection("chat")
+          .add({
+        'text':
+            "현재 예약 현황입니다.\n시설명 :${result?['reserve']['fac']}\n 예약 시간: ${result?['reserve']['day'] +"//"+ result?['reserve']['time']}",
+        'time': Timestamp.now(),
+        'userID': 'notice',
+        'userName': 'notice',
+      });
+    }
   }
 
   void getName() async {

@@ -202,15 +202,8 @@ class ChatScreenState extends State<ChatScreen>
             child: ListView(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.home),
-                  title: const Text('Home'),
-                  onTap: () {
-                    // Home 메뉴 클릭 시 원하는 동작 수행
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: const Text('Settings'),
+                  leading: const Icon(Icons.label_important_outline_sharp),
+                  title: const Text('예약현황'),
                   onTap: () {
                     // Settings 메뉴 클릭 시 원하는 동작 수행
                   },

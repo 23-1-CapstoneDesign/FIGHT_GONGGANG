@@ -96,7 +96,17 @@ class ReservePopupState extends State<ReservePopup> {
         uniqueDatesList = uniqueDates.toList();
       });
     }
-    setDate(dateList[0]['date'].toString());
+    if(dateList!=null) {
+      setDate(dateList[0]['date'].toString());
+    }
+    else{
+      if(mounted){
+        setState(() {
+          _dataLoaded = true;
+        });
+      }
+
+    }
     conn.close();
   }
 
@@ -142,7 +152,7 @@ class ReservePopupState extends State<ReservePopup> {
         .doc(widget.chatRoomID)
         .collection("chat")
         .add({
-      'text': '${widget.facName} 이 ${_selectedDate} $_selectedTime 에 예약되었습니다. ',
+      'text': '${widget.facName} 을(를) ${_selectedDate} $_selectedTime 에 예약되었습니다. ',
       'time': Timestamp.now(),
       'userID': 'notice',
       'userName': 'notice',
