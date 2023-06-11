@@ -18,7 +18,6 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: () async {
         // 이전 페이지로 이동하지 않고 원하는 동작을 수행
@@ -37,12 +36,12 @@ class HomePageState extends State<HomePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddClass()),
+                      MaterialPageRoute(builder: (context) => const AddClass()),
                     ).then((value) {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MainTabPage()));
+                              builder: (context) => const MainTabPage()));
                     });
                   },
                   child: const Text('시간표 등록하러 가기'),
@@ -50,35 +49,40 @@ class HomePageState extends State<HomePage> {
 
                 //
               ]),
-
+              const Divider(
+                height: 2,
+                color: Colors.green,
+              ),
               Align(
                 child: Text(
-
                   "참여중인 파티",
-                  style:GoogleFonts.gamjaFlower(fontSize: 30),
+                  style: GoogleFonts.gamjaFlower(fontSize: 30),
                   textAlign: TextAlign.center,
                 ),
               ),
-               const SizedBox(
-                height: 130,
+              const SizedBox(
+                height: 200,
                 child: Expanded(
                   child: MyParty(),
                 ),
+              ),
+              const Divider(
+                height: 2,
+                color: Colors.green,
               ),
               Column(
                 children: [
                   Align(
                     child: Text(
                       "청년 정책",
-        style:GoogleFonts.gamjaFlower(fontSize: 25),
+                      style: GoogleFonts.gamjaFlower(fontSize: 25),
                       // style: TextStyle(fontSize: 40),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                   const SizedBox(
+                  const SizedBox(
                       height: 200,
-                      child:
-                          Row(children: [Expanded(child: GalleryWidget())]))
+                      child: Row(children: [Expanded(child: GalleryWidget())]))
                 ],
               ),
             ],

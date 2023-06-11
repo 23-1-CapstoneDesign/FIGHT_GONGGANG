@@ -176,22 +176,22 @@ class PartyPageState extends State<PartyPage> {
             return b.partyName.compareTo(a.partyName);
           });
         } else if (_selectedType == _sortType[2]) {
-          //이름 역순
+          //오래된 순
           posts.sort((a, b) {
             return a.createdTime.compareTo(b.createdTime);
           });
         } else if (_selectedType == _sortType[3]) {
-          //이름 역순
+          //최신 생성순
           posts.sort((a, b) {
             return b.createdTime.compareTo(a.createdTime);
           });
         } else if (_selectedType == _sortType[4]) {
-          //이름 역순
+          //멤버 많은 순
           posts.sort((a, b) {
             return b.currentMembersCount.compareTo(a.currentMembersCount);
           });
         } else if (_selectedType == _sortType[5]) {
-          //이름 역순
+          //멤버가 적은 순
           posts.sort((a, b) {
             return a.currentMembersCount.compareTo(b.currentMembersCount);
           });

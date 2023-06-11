@@ -64,8 +64,8 @@ class NewMessageState extends State<NewMessage> {
               .add({
             'text': name[i],
             'time': Timestamp.now(),
-            'userID': "notice",
-            'userName': "notice",
+            'userID': "reserve",
+            'userName': "reserve",
             'show': prefs.getString('username')
           });
         }

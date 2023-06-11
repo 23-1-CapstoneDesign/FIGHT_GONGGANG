@@ -7,13 +7,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReservePopup extends StatefulWidget {
-  final String chatRoomID;
   final String facName;
+  final String day;
 
-  const ReservePopup(
-      {super.key, required this.chatRoomID, required this.facName});
+  const ReservePopup({super.key, required this.facName, required this.day});
 
   @override
   ReservePopupState createState() => ReservePopupState();
@@ -29,12 +29,11 @@ class Reserve {
 
 class ReservePopupState extends State<ReservePopup> {
   bool run = true;
-  List<Map<String, String>> dateList = [];
+  List<String> dateList = [];
+  List<Map<String, dynamic>> partyList = [];
 
-  String _selectedDate = "";
   String _selectedTime = "";
-  String _selectedEnd = "";
-
+  String _selecetedParty = "";
 
   List<String> uniqueDatesList = [];
   List<String> filteredTimes = [];
@@ -43,6 +42,8 @@ class ReservePopupState extends State<ReservePopup> {
   bool _dataLoaded = false;
   bool _isReserved = false;
 
+
+  String chatRoomID="";
   Reserve? reserve;
 
   @override
@@ -56,104 +57,113 @@ class ReservePopupState extends State<ReservePopup> {
     await conn.open();
     mongo.DbCollection collection = conn.collection('facility');
 
-    var find = await collection
-        .find({"name": widget.facName, "isReserved": true}).toList();
-    // print(find);
+    print(widget.day);
+    print(widget.facName);
+    var find = await collection.find({
+      "name": widget.facName,
+      "isReserved": true,
+      "day": widget.day
+    }).toList();
+
     for (int i = 0; i < find.length; i++) {
+
       if (mounted) {
         setState(() {
-          dateList.add({'date': find[i]['day'], 'time': find[i]['time']});
+          if(!dateList.contains(find[i]['time'])) {
+            dateList.add(find[i]['time']);
+          }
         });
       }
+
     }
+    // print(dateList);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     collection = conn.collection('party');
-    var query = {"_id": mongo.ObjectId.fromHexString(widget.chatRoomID)};
-    var partyData = await collection.findOne(query);
-    String nowTime = DateFormat('yyyyMMddHH:mm').format(DateTime.now());
-    if (partyData?['reserve'] != null &&
-        nowTime.compareTo(
-                partyData?['reserve']['day'] + partyData?['reserve']['time']) ==
-            -1 &&
-        mounted) {
-      setState(() {
-        _isReserved = true;
-        reserve = Reserve(
-            fac: partyData?['reserve']['fac'],
-            day: partyData?['reserve']['day'],
-            time: partyData?['reserve']['time']);
-      });
-    }
-
-    Set<String> uniqueDates = <String>{};
-
-    for (var data in dateList) {
-      uniqueDates.add(data['date'].toString());
-    }
+    var list = await collection.find({
+      'nowMembers': {
+        '\$elemMatch': {'\$eq': prefs.getString('username')}
+      }
+    }).toList();
 
     if (mounted) {
       setState(() {
-        uniqueDatesList = uniqueDates.toList();
+        partyList = list;
+        _selecetedParty=list[0]['name'];
+        chatRoomID=list[0]['_id'].toHexString();
+        _selectedTime=dateList[0];
+      });
+      // print(partyList);
+    }
+
+    //todo party data가져오기
+    // collection = conn.collection('party');
+    // var query = {"_id": mongo.ObjectId.fromHexString("widget.chatRoomID")};
+    // var partyData = await collection.findOne(query);
+    // String nowTime = DateFormat('yyyyMMddHH:mm').format(DateTime.now());
+    // if (partyData?['reserve'] != null &&
+    //     nowTime.compareTo(
+    //             partyData?['reserve']['day'] + partyData?['reserve']['time']) ==
+    //         -1 &&
+    //     mounted) {
+    //   setState(() {
+    //     _isReserved = true;
+    //     reserve = Reserve(
+    //         fac: partyData?['reserve']['fac'],
+    //         day: partyData?['reserve']['day'],
+    //         time: partyData?['reserve']['time']);
+    //   });
+    // }
+
+    // Set<String> uniqueDates = <String>{};
+
+    if (mounted) {
+      setState(() {
+        _dataLoaded=true;
       });
     }
-    setDate(dateList[0]['date'].toString());
     conn.close();
   }
 
-  void setDate(String date) {
+  void updateReserve() async {
     if (mounted) {
       setState(() {
-        filteredTimes = dateList
-            .where((data) => data['date'] == date)
-            .map((data) => data['time'].toString())
-            .toList();
-        _selectedDate = date;
-        _selectedTime = filteredTimes[0];
-        _dataLoaded = true;
+        run = false;
       });
-    }
-  }
-
-  void updateReserve() async {
-    if(mounted) {
-      setState(() {
-      run=false;
-    });
     }
     mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('party');
-    var query = {"_id": mongo.ObjectId.fromHexString(widget.chatRoomID)};
+    var query = {"_id": mongo.ObjectId.fromHexString(chatRoomID)};
     // var find=collection.findOne(query);
     var find = await collection.findOne(query);
     if (find?['reserve'] != null) {}
     var data = {
       "fac": widget.facName,
-      "day": _selectedDate,
+      "day": widget.day,
       "time": _selectedTime
     };
 
-    var modifier = mongo.ModifierBuilder().set('reserve', data);
+    // var modifier = mongo.ModifierBuilder().set('reserve', data);
 
-    var result = await collection.updateOne(query, modifier);
+    // var result = await collection.updateOne(query, modifier);
 
     FirebaseFirestore.instance
         .collection('chat')
-        .doc(widget.chatRoomID)
+        .doc(chatRoomID)
         .collection("chat")
         .add({
-      'text': '${widget.facName} 이 ${_selectedDate} $_selectedTime 에 예약되었습니다. ',
+      'text': '${widget.facName} 이 ${widget.day} $_selectedTime 에 예약되었습니다. ',
       'time': Timestamp.now(),
       'userID': 'notice',
       'userName': 'notice',
     });
 
-
     if (!mounted) return;
     Navigator.pop(context);
   }
 
-  DateTime addTime(String dateString,int i) {
+  DateTime addTime(String dateString, int i) {
     DateFormat format = DateFormat('HH:mm');
     DateTime dateTime = format.parse(dateString);
     dateTime = dateTime.add(Duration(minutes: i));
@@ -180,33 +190,46 @@ class ReservePopupState extends State<ReservePopup> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [Text("날짜"), Text("시간")],
+            children: [Text("파티"), Text("시간")],
           ),
           if (_dataLoaded)
             Row(
               children: [
                 DropdownButton<String>(
-                  value: _selectedDate,
-                  items: uniqueDatesList.map((String item) {
+                  value: _selecetedParty,
+                  items: partyList.map((var item) {
                     return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
+                      value: item['name'],
+                      child: Text(item['name']),
                     );
                   }).toList(),
                   onChanged: (newValue) {
                     setState(() {
-                      _selectedDate = newValue.toString();
+                      _selecetedParty = newValue.toString();
+                      for (var ele in partyList) {
+
+                        if(ele['name']==_selecetedParty){
+                          print(ele);
+                          chatRoomID=ele['_id'].toHexString();
+                          print(chatRoomID);
+
+
+                        }
+
+                      }
+
+
+
                     });
-                    setDate(_selectedDate);
+                    // setDate(_selecetedParty);
                   },
                 ),
                 const SizedBox(width: 20),
                 DropdownButton<String>(
                   value: _selectedTime,
-                  items: filteredTimes.map((String item) {
+                  items: dateList.map((String item) {
                     return DropdownMenuItem<String>(
                       value: item,
                       child: Text(item),
@@ -215,7 +238,6 @@ class ReservePopupState extends State<ReservePopup> {
                   onChanged: (newValue) {
                     setState(() {
                       _selectedTime = newValue.toString();
-                      _selectedDate = DateFormat('HH:mm').format(addTime(_selectedTime, 30));
                     });
                   },
                 ),

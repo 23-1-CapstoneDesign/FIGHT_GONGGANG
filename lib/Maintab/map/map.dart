@@ -50,12 +50,13 @@ class MapPageState extends State<MapPage> {
     [36.798839, 127.078338, "보건관"]
   ];
 
-  final point_bon = [36.800262, 127.074934, "본관"]; //본관 위치
-  final point_gonghak = [36.800171, 127.072652, "공학관"]; //공학관 위치
-  final point_wonhwa = [36.800080, 127.077211, "원화관"]; //원화관 위치
-  final point_jayeon = [36.798791, 127.074048, "자연관"]; //자연관 위치
-  final point_inmoon = [36.798791, 127.075871, "인문관"]; //인문관 위치
-  final point_bogeon = [36.798839, 127.078338, "보건관"]; //보건관 위치
+  final pointBon = [36.800262, 127.074934, "본관"]; //본관 위치
+  final pointGonghak = [36.800171, 127.072652, "공학관"]; //공학관 위치
+  final pointWonhwa = [36.800080, 127.077211, "원화관"]; //원화관 위치
+  final pointJayeon = [36.798791, 127.074048, "자연관"]; //자연관 위치
+  final pointInmoon = [36.798791, 127.075871, "인문관"]; //인문관 위치
+  final pointBogeon = [36.798839, 127.078338, "보건관"]; //보건관 위치
+
 
   Future<String> test() async {
     mongo.Db conn = await mongo.Db.create(dbUrl);
@@ -183,12 +184,12 @@ var infowindow = new kakao.maps.InfoWindow({
     removable : iwRemoveable
 });
 
-      addMarker(new kakao.maps.LatLng(${point_bon[0]},${point_bon[1]}));
-      addMarker(new kakao.maps.LatLng(${point_gonghak[0]},${point_gonghak[1]}));
-      addMarker(new kakao.maps.LatLng(${point_inmoon[0]},${point_inmoon[1]}));
-      addMarker(new kakao.maps.LatLng(${point_jayeon[0]},${point_jayeon[1]}));
-      addMarker(new kakao.maps.LatLng(${point_wonhwa[0]},${point_wonhwa[1]}));  
-      addMarker(new kakao.maps.LatLng(${point_bogeon[0]},${point_bogeon[1]}));        
+      addMarker(new kakao.maps.LatLng(${pointBon[0]},${pointBon[1]}));
+      addMarker(new kakao.maps.LatLng(${pointGonghak[0]},${pointGonghak[1]}));
+      addMarker(new kakao.maps.LatLng(${pointInmoon[0]},${pointInmoon[1]}));
+      addMarker(new kakao.maps.LatLng(${pointJayeon[0]},${pointJayeon[1]}));
+      addMarker(new kakao.maps.LatLng(${pointWonhwa[0]},${pointWonhwa[1]}));  
+      addMarker(new kakao.maps.LatLng(${pointBogeon[0]},${pointBogeon[1]}));        
       kakao.maps.event.addListener(markers[0], 'click', (function() {
       
 
@@ -284,7 +285,8 @@ var infowindow = new kakao.maps.InfoWindow({
         SizedBox(
           height: 30,
         ),
-        FacCard(facility: selectedIndex!=-1?points[selectedIndex][2].toString():""),
+        if(selectedIndex!=-1)
+        FacCard(facility: points[selectedIndex][2].toString()),
       ]),
     );
   }

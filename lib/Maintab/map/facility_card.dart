@@ -1,4 +1,5 @@
 import 'package:fighting_gonggang/Layout/items.dart';
+import 'package:fighting_gonggang/Maintab/map/reserve_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
@@ -25,11 +26,12 @@ class FacCardState extends State<FacCard> {
   bool _facLoaded = false;
 
   void setFacility(String facility) async {
+    print(names);
     int index = names.indexWhere((element) => element['facility'] == facility);
-
+    print(index);
     if (index != -1 && mounted) {
       setState(() {
-        name = List<String>.from(names[index]['names']);
+        name = List<String>.from(names[index]['name']);
       });
     } else if (mounted) {
       setState(() {
@@ -66,6 +68,7 @@ class FacCardState extends State<FacCard> {
     List<Map<String, dynamic>> result =
         await collection.aggregateToStream(pipeline).toList();
     // print(result[0]['day'].runtimeType);
+
     setState(() {
       selectedName = name;
       datelist = List<String>.from(result[0]['day']);
@@ -82,14 +85,14 @@ class FacCardState extends State<FacCard> {
       {
         '\$group': {
           '_id': '\$facility',
-          'names': {'\$addToSet': '\$name'},
+          'name': {'\$addToSet': '\$name'},
         },
       },
       {
         '\$project': {
           '_id': 0,
           'facility': '\$_id',
-          'names': 1,
+          'name': 1,
         },
       },
     ];
@@ -112,7 +115,7 @@ class FacCardState extends State<FacCard> {
     super.didUpdateWidget(oldWidget);
 
     // facility 값이 변경될 때마다 호출되는 함수
-    if (widget.facility != facility) {
+    if (widget.facility != facility && _loaded) {
       facility = widget.facility;
 
       setFacility(facility);
@@ -141,16 +144,18 @@ class FacCardState extends State<FacCard> {
                     itemCount: name.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Column(children: [
-                        Row(
-                        children:[
-                          Expanded(child: ElevatedButton(
-                            onPressed: () {
-                              getReservation(name[index]);
-                            },
-                            child: Text(name[index]))),
-                        const SizedBox(width: 10,)
+                        Row(children: [
+                          Expanded(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    getReservation(name[index]);
+                                  },
+                                  child: Text(name[index]))),
+                          const SizedBox(
+                            width: 10,
+                          )
                         ]),
-                      const SizedBox(
+                        const SizedBox(
                           height: 10,
                         )
                       ]);
@@ -169,7 +174,6 @@ class FacCardState extends State<FacCard> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-
                       children: [
                         const Center(child: Text("예약 현황")),
                         SizedBox(
@@ -182,20 +186,28 @@ class FacCardState extends State<FacCard> {
                                 itemCount: datelist.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return ElevatedButton(
-                                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.teal),),
-                                  onPressed: () {}, child: Text(datelist[index]));
-                                  
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Colors.teal),
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return ReservePopup(
+                                                  facName: selectedName,
+                                                  day: datelist[index]);
+                                            });
+                                      },
+                                      child: Text(datelist[index]));
+
                                   // return Text(datelist[index]);
                                 }))
                       ],
                     ),
                   ),
                 ),
-              if (!_facLoaded)
-                const Align(
-                    child: SizedBox(
-                  child: CircularProgressIndicator(),
-                ))
             ],
           ),
         ],

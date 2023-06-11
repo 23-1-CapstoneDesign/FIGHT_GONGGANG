@@ -22,6 +22,8 @@ class GalleryWidgetState extends State<GalleryWidget> {
   void initState() {
     super.initState();
     getData();
+
+
   }
 
   void getData() async {

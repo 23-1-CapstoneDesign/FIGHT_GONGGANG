@@ -9,7 +9,7 @@ class Post {
   final String tag;
   final String? description;
   final DateTime createdTime;
-  final String? postId;
+  final String postId;
   final String? id;
 
   Post({
@@ -65,7 +65,7 @@ class _CommunityPageState extends State<CommunityPage> {
     for (int i = 0; i < communityList.length; i++) {
       List<String> tags = List<String>.from(communityList[i]['tags']);
       String tagsString = tags.join(' ');
-      String id = communityList[i]['_id'].toString();
+      String id = communityList[i]['_id'].toHexString();
       tempPost.add(Post(
         title: communityList[i]['title'],
         tag: tagsString,
@@ -73,6 +73,7 @@ class _CommunityPageState extends State<CommunityPage> {
         description: communityList[i]['description'],
         postId: id,
       ));
+      print(id);
     }
     if (mounted) {
       setState(() {
@@ -254,7 +255,7 @@ class _CommunityPageState extends State<CommunityPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => BoardPostDetailPage(
-                                    postId: '6484640049bfe6afee8f644b'),
+                                    postId: filteredPosts[index].postId),
                               ),
                             );
                           },

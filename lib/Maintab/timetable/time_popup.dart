@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class TimeDetailsPopup extends StatelessWidget {
-  final String Name;
+  final String name;
   final List<dynamic>? appointments;
 
   const TimeDetailsPopup(
-      {super.key, required this.Name, required this.appointments});
+      {super.key, required this.name, required this.appointments});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class TimeDetailsPopup extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("교수 명:"),
+             Text("교수 명:$name"),
         Text("시작시간:${appointments?[0].startTime.hour}:${appointments?[0].startTime.minute.toString().padLeft(2, "0")}"),
         Text("종료시간:${appointments?[0].endTime.hour}:${appointments?[0].endTime.minute.toString().padLeft(2, "0")}"),
       ]),

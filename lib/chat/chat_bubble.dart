@@ -109,15 +109,7 @@ class ChatBubblesState extends State<ChatBubbles> {
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: [
-                      if (widget.userName != "notice")
-                        Text(
-                          widget.message,
-                          style: GoogleFonts.gamjaFlower(
-                              fontSize: 25,
-                              fontWeight: FontWeight.w500,
-                              color: const Color.fromRGBO(255, 255, 255, 1)),
-                        ),
-                      if (widget.userName == "notice")
+                      if (widget.userName == "reserve")
                         TextButton(
                             onPressed: () {
                               showDialog(
@@ -134,6 +126,15 @@ class ChatBubblesState extends State<ChatBubbles> {
                                   fontWeight: FontWeight.w500,
                                   color: const Color.fromRGBO(0, 0, 200, 0.8)),
                             ))
+                      else if(widget.userName == "reserve")const Text("notice")
+                      else
+                        Text(
+                          widget.message,
+                          style: GoogleFonts.gamjaFlower(
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromRGBO(255, 255, 255, 1)),
+                        ),
                     ],
                   ),
                 ),

@@ -18,14 +18,12 @@ class _PostPageState extends State<PostPage> {
 
   String title = '';
   String tags = "";
-  String content = '';
+  String description = '';
   File? _imageFile; // 선택된 이미지 파일
 
   final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _tagsController = TextEditingController();
-
-  String? _selectedBoard;
 
   bool _running = false;
 
@@ -78,7 +76,7 @@ class _PostPageState extends State<PostPage> {
       collection.insertOne({
         "title": title,
         "tags": tags.split(' '), // 공백으로 구분
-        "description": content,
+        "description": description,
         "createdTime": DateTime.now(),
         "username": _username,
       });
@@ -101,7 +99,7 @@ class _PostPageState extends State<PostPage> {
   @override
   void dispose() {
     _titleController.dispose();
-    _contentController.dispose();
+    _descriptionController.dispose();
     _tagsController.dispose();
     super.dispose();
   }
@@ -132,7 +130,7 @@ class _PostPageState extends State<PostPage> {
             ),
             SizedBox(height: 30),
             TextField(
-              controller: _contentController,
+              controller: _descriptionController,
               maxLines: 10,
               decoration: InputDecoration(
                 labelText: '내용',
@@ -141,7 +139,7 @@ class _PostPageState extends State<PostPage> {
               onChanged: (value) {
                 if (mounted) {
                   setState(() {
-                    content = value;
+                    description = value;
                   });
                 }
               },
@@ -194,7 +192,6 @@ class _PostPageState extends State<PostPage> {
                 child: Image.file(_imageFile!),
               ),
             ],
-            //////////////////////////
             SizedBox(height: 16),
             if (!_running)
               ElevatedButton(
