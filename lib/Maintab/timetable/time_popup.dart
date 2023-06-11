@@ -12,12 +12,12 @@ class TimeDetailsPopup extends StatelessWidget {
     DateTime dateTime;
 
     return AlertDialog(
-      title: Text("강의명 :${appointments?[0].subject}"),
+      title: Text("강의/파티명 :${appointments?[0].subject}"),
       content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-             Text("교수 명:$name"),
+             Text("교수/파티 명:$name"),
         Text("시작시간:${appointments?[0].startTime.hour}:${appointments?[0].startTime.minute.toString().padLeft(2, "0")}"),
         Text("종료시간:${appointments?[0].endTime.hour}:${appointments?[0].endTime.minute.toString().padLeft(2, "0")}"),
       ]),
