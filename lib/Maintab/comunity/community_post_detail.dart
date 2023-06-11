@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'community_main.dart';
 
 class BoardPostDetailPage extends StatefulWidget {
@@ -23,7 +24,7 @@ class _BoardPostDetailPageState extends State<BoardPostDetailPage> {
   String tags = '';
   String description = '';
   int likes = 0;
-
+  String myName="";
   void initState() {
     // 위젯의 상태가 처음 생성될 때 필요한 초기화 작업을 수행
     super.initState();
@@ -95,9 +96,11 @@ class _BoardPostDetailPageState extends State<BoardPostDetailPage> {
             "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
         return formattedDate;
       }
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
       if (result != null) {
         setState(() {
+          myName=prefs.getString('username')!;
           title = result['title'] ?? '';
           tags = result['tags']?.join(' ') ?? '';
           username = result['username'] ?? '';
@@ -152,7 +155,9 @@ class _BoardPostDetailPageState extends State<BoardPostDetailPage> {
                   ),
                 ),
                 Spacer(),
+
                 SizedBox(width: 70),
+                if(myName==username)
                 ElevatedButton(
                   onPressed: () {
                     FocusScope.of(context).requestFocus(FocusNode());
@@ -161,6 +166,7 @@ class _BoardPostDetailPageState extends State<BoardPostDetailPage> {
                   child: Text('삭제'),
                 ),
                 SizedBox(width: 6),
+                if(username==myName)
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
