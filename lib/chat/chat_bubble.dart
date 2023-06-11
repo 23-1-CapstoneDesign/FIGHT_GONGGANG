@@ -123,7 +123,7 @@ class ChatBubblesState extends State<ChatBubbles> {
                               showDialog(
                                   context: context,
                                   builder: (context) {
-                                    return reservePopup(chatRoomID: widget.chatRoomID, facName: widget.message);
+                                    return ReservePopup(chatRoomID: widget.chatRoomID, facName: widget.message);
                                   });
 
                             },

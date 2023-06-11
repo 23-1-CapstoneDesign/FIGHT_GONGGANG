@@ -87,6 +87,7 @@ if(mounted) {
           prefs.remove("profile");
         }
         conn.close();
+        if(!mounted)return;
         Navigator.pop(context, _encodedImage);
       } else {
         if(mounted) {

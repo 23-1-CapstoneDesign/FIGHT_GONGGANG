@@ -22,7 +22,15 @@ class AddClassState extends State<AddClass> {
   static final dbUrl = dotenv.env["MONGODB_URL"].toString();
 
   final List<String> _daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
-  final List<String> _daysOfWeekENG = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+  final List<String> _daysOfWeekENG = [
+    'MO',
+    'TU',
+    'WE',
+    'TH',
+    'FR',
+    'SA',
+    'SU'
+  ];
   final List<String> _hours = [];
   final List<String> _minutes = [];
   String selectedValue = "항목 1"; // 선택한 항목을 저장할 변수
@@ -30,7 +38,7 @@ class AddClassState extends State<AddClass> {
   final _professorController = TextEditingController();
 
   int times = 0;
-  List<String> _selectedDay = [];
+  final List<String> _selectedDay = [];
   List<String> _selectedStartHours = [];
   List<String> _selectedStartMinutes = [];
   List<String> _selectedEndHours = [];
@@ -50,9 +58,9 @@ class AddClassState extends State<AddClass> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("시간표 추가")),
+        appBar: AppBar(title: const Text("시간표 추가")),
         body: Column(children: [
-          TimeTable(),
+          const TimeTable(),
           Row(
               mainAxisAlignment: MainAxisAlignment.end, // 위젯을 우측에 정렬
               children: [
@@ -62,11 +70,10 @@ class AddClassState extends State<AddClass> {
                     Navigator.of(context).pop(context);
                   },
                 ),
-                SizedBox(width: 0),
+                const SizedBox(width: 0),
                 FGRoundButton(
                     text: "완료",
                     onPressed: () async {
-
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       // DB insert 부분
@@ -79,7 +86,7 @@ class AddClassState extends State<AddClass> {
                       List<String> days = [];
 
                       bool verification1 = true;
-                      bool verification2 = true;
+
                       bool verification3 = true;
 
                       for (int i = 0; i < times; i++) {
@@ -126,25 +133,18 @@ class AddClassState extends State<AddClass> {
                         }).toList();
 
                         if (finding.isNotEmpty) {
-
+                          if(!mounted)return;
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text('등록 실패'),
-                                content: Text('중복된 수업이 존재합니다' +
-                                    '\n중복된 수업:' +
-                                    finding[0]['className'] +
-                                    '\n중복된 시간:' +
-                                    startTimes[i] +
-                                    "~" +
-                                    endTimes[i]),
+                                title: const Text('등록 실패'),
+                                content: Text('중복된 수업이 존재합니다\n중복된 수업:${finding[0]['className']}\n중복된 시간:${startTimes[i]}~${endTimes[i]}'),
                                 actions: [
                                   TextButton(
-                                    child: Text('확인'),
-                                    onPressed: () =>
-                                        Navigator.pop(context, true)
-                                  ),
+                                      child: const Text('확인'),
+                                      onPressed: () =>
+                                          Navigator.pop(context, true)),
                                 ],
                               );
                             },
@@ -152,12 +152,11 @@ class AddClassState extends State<AddClass> {
                           conn.close();
                           return;
                         }
-
                       }
 
                       for (int i = 0; i < times; i++) {
                         for (int j = 0; j < times; j++) {
-                          if (i != j) {
+                          if (i != j && days[i] == days[j]) {
                             int res1 = startTimes[i].compareTo(startTimes[j]);
                             int res2 = startTimes[i].compareTo(endTimes[j]);
                             int res3 = endTimes[i].compareTo(startTimes[j]);
@@ -186,41 +185,68 @@ class AddClassState extends State<AddClass> {
                           msg: "시작 시간이 끝나는 시간보다 빨라야 합니다.",
                           toastLength: Toast.LENGTH_SHORT,
                         );
-                      } else if (!verification2) {
-                        Fluttertoast.showToast(
-                          msg: "이미 같은 시간에 수업이 있습니다.",
-                          toastLength: Toast.LENGTH_SHORT,
-                        );
                       } else if (!verification3) {
                         Fluttertoast.showToast(
                           msg: "중복된 시간",
                           toastLength: Toast.LENGTH_SHORT,
                         );
                       } else {
+                        List<String> dates = [];
+                        List<String> sTimes = [];
+                        List<String> eTimes = [];
+
                         for (int i = 0; i < _selectedDay.length; i++) {
-                          var result = await collection.insert({
-                            'user': prefs.getString('username'),
-                            'className': _classController.text,
-                            'date': days[i],
-                            'startTime':
-                                "${_selectedStartHours[i]}:${_selectedStartMinutes[i]}",
-                            'endTime':
-                                "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}",
-                          });
+                          sTimes.add(
+                              "${_selectedStartHours[i]}:${_selectedStartMinutes[i]}");
+                          eTimes.add(
+                              "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}");
                         }
+
+                        var data = {
+                          'user': prefs.getString('username'),
+                          'professor': _professorController.text,
+                          'className': _classController.text,
+                          'date': days,
+                          'startTime': sTimes,
+                          'endTime': eTimes,
+                        };
+
+                        var result = await collection.insert({
+                          'user': prefs.getString('username'),
+                          'professor': _professorController.text,
+                          'className': _classController.text,
+                          'date': days,
+                          'startTime': sTimes,
+                          'endTime': eTimes,
+                        });
+                        // for (int i = 0; i < _selectedDay.length; i++) {
+                        //   await collection.insert({
+                        //     'user': prefs.getString('username'),
+                        //     'professor': _professorController.text,
+                        //     'className': _classController.text,
+                        //     'date': days[i],
+                        //     'startTime':
+                        //         "${_selectedStartHours[i]}:${_selectedStartMinutes[i]}",
+                        //     'endTime':
+                        //         "${_selectedEndHours[i]}:${_selectedEndMinutes[i]}",
+                        //   });
+                        // }
                         conn.close();
-                        Navigator.of(context).pop();
+                        if (result.isNotEmpty) {
+                          print(result);
+                          print(result[0]);
+                          Navigator.of(context).pop();
+                        }
                       }
                       conn.close();
-
                     }),
-                SizedBox(width: 0),
+                const SizedBox(width: 0),
               ]),
           FGTextField(
             controller: _classController,
             text: "강의명",
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           FGTextField(
             controller: _professorController,
             text: "교수명",
@@ -236,7 +262,7 @@ class AddClassState extends State<AddClass> {
                   _selectedEndMinutes.add("30");
                 });
               },
-              child: Text("시간 추가")),
+              child: const Text("시간 추가")),
           Expanded(
             child: ListView.builder(
               itemCount: times,
@@ -244,7 +270,7 @@ class AddClassState extends State<AddClass> {
                 return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("요일:"),
+                      const Text("요일:"),
                       DropdownButton<String>(
                         value: _selectedDay[index],
                         items: _daysOfWeek.map((String item) {
@@ -259,7 +285,7 @@ class AddClassState extends State<AddClass> {
                           });
                         },
                       ),
-                      Text("시작:"),
+                      const Text("시작:"),
                       DropdownButton<String>(
                         value: _selectedStartHours[index],
                         items: _hours.map((String item) {
@@ -274,7 +300,7 @@ class AddClassState extends State<AddClass> {
                           });
                         },
                       ),
-                      Text(":"),
+                      const Text(":"),
                       DropdownButton<String>(
                         value: _selectedStartMinutes[index],
                         items: _minutes.map((String item) {
@@ -289,7 +315,7 @@ class AddClassState extends State<AddClass> {
                           });
                         },
                       ),
-                      Text("종료:"),
+                      const Text("종료:"),
                       DropdownButton<String>(
                         value: _selectedEndHours[index],
                         items: _hours.map((String item) {
@@ -304,7 +330,7 @@ class AddClassState extends State<AddClass> {
                           });
                         },
                       ),
-                      Text(":"),
+                      const Text(":"),
                       DropdownButton<String>(
                         value: _selectedEndMinutes[index],
                         items: _minutes.map((String item) {
@@ -332,7 +358,7 @@ class AddClassState extends State<AddClass> {
                                 times -= 1;
                               });
                             },
-                            icon: Icon(Icons.delete),
+                            icon: const Icon(Icons.delete),
                           ))
                     ]);
               },

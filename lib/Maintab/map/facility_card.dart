@@ -14,20 +14,20 @@ class FacCard extends StatefulWidget {
 
 // class HomePage extends StatelessWidget {
 class FacCardState extends State<FacCard> {
-  static final dburl = dotenv.env["MONGO_URL"].toString();
+  static final dburl = dotenv.env["MONGODB_URL"].toString();
   List<String> name = [];
   List<String> datelist = [];
   List<Map<String, dynamic>> names = [];
   String facility = "";
+  String selectedName = "";
+  bool _loaded = false;
+
+  bool _facLoaded = false;
 
   void setFacility(String facility) async {
     int index = names.indexWhere((element) => element['facility'] == facility);
 
-
-
     if (index != -1 && mounted) {
-
-
       setState(() {
         name = List<String>.from(names[index]['names']);
       });
@@ -42,10 +42,13 @@ class FacCardState extends State<FacCard> {
   }
 
   void getReservation(String name) async {
+    _facLoaded = false;
     mongo.Db conn = await mongo.Db.create(dburl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('facility');
 
+    // var find = await collection.find({"name": name}).toList();
+    // List<Map<String, dynamic>> i = find;
     final pipeline = [
       {
         '\$match': {'name': name}
@@ -64,11 +67,10 @@ class FacCardState extends State<FacCard> {
         await collection.aggregateToStream(pipeline).toList();
     // print(result[0]['day'].runtimeType);
     setState(() {
+      selectedName = name;
       datelist = List<String>.from(result[0]['day']);
-
+      _facLoaded = true;
     });
-    conn.close();
-
   }
 
   void getName() async {
@@ -97,6 +99,7 @@ class FacCardState extends State<FacCard> {
     if (mounted) {
       setState(() {
         names = result;
+        _loaded = true;
       });
 
       // names['values'].map((dynamic value) => value as String));
@@ -124,25 +127,36 @@ class FacCardState extends State<FacCard> {
 
   @override
   Widget build(BuildContext context) {
-    if (facility != "") {
+    if (_loaded) {
       // setFacility(facility);
       return Column(
         children: [
           Row(
             children: [
-              ListView(
-                children: [ListView.builder(
+              SizedBox(
+                width: 150,
+                height: 300,
+                child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: name.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return ElevatedButton(
-                          onPressed: () {
-                            getReservation(name[index]);
-                          },
-                          child: Text(name[index]));
-                    })],
+                      return Column(children: [
+                        Row(
+                        children:[
+                          Expanded(child: ElevatedButton(
+                            onPressed: () {
+                              getReservation(name[index]);
+                            },
+                            child: Text(name[index]))),
+                        const SizedBox(width: 10,)
+                        ]),
+                      const SizedBox(
+                          height: 10,
+                        )
+                      ]);
+                    }),
               ),
-              if (name.isNotEmpty)
+              if (_facLoaded)
                 SizedBox(
                   height: 300,
                   width: 250,
@@ -155,32 +169,43 @@ class FacCardState extends State<FacCard> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         const Center(child: Text("예약 현황")),
-
-                        const SizedBox(
-                            width: 250, child: FGRoundTextField(text: "시설명:")),
                         SizedBox(
-                            height: 40,
+                            width: 250,
+                            child: FGRoundTextField(text: "시설명:$selectedName")),
+                        SizedBox(
+                            height: 200,
                             child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
+                                // scrollDirection: Axis.horizontal,
                                 itemCount: datelist.length,
                                 itemBuilder: (BuildContext context, int index) {
-
-                                  return const Text("");
+                                  return ElevatedButton(
+                                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.teal),),
+                                  onPressed: () {}, child: Text(datelist[index]));
+                                  
+                                  // return Text(datelist[index]);
                                 }))
                       ],
                     ),
                   ),
                 ),
+              if (!_facLoaded)
+                const Align(
+                    child: SizedBox(
+                  child: CircularProgressIndicator(),
+                ))
             ],
           ),
         ],
       );
     } else {
-
-      return const Column();
+      return const Align(
+        child: SizedBox(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
-
   }
 }

@@ -1,3 +1,4 @@
+import 'package:fighting_gonggang/Maintab/timetable/time_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
@@ -12,84 +13,86 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
  */
 
 class TimeTable extends StatefulWidget {
-  static GlobalKey<TimeTableState> myWidgetKey =
-  GlobalKey<TimeTableState>();
-
   const TimeTable({super.key});
+
   @override
   TimeTableState createState() => TimeTableState();
 }
 
 class TimeTableState extends State<TimeTable> {
-
-
   List<Appointment> _appointments = [];
 
   static final dbUrl = dotenv.env["MONGODB_URL"].toString();
-
+  final List<Color> colors=[Colors.redAccent,Colors.blueAccent,Colors.cyan,Colors.yellowAccent,Colors.orangeAccent,Colors.amberAccent,Colors.pink,Colors.tealAccent];
   DateTime now = DateTime.now();
-
-
-
-
 
   @override
   void initState() {
+    print("12345");
     super.initState();
-    _appointments = [];
 
-
-    getCurrentLocation().then((List<Appointment> value) {
-      if(mounted) {
-        setState(() {
-          _appointments = value;
-        });
-      }
-    });
-
+    getCurrentLocation();
   }
 
-
-
-
-  Future<List<Appointment>> getCurrentLocation() async {
+  void getCurrentLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     mongo.Db conn = await mongo.Db.create(dbUrl);
+
     await conn.open();
     mongo.DbCollection collection = conn.collection('class');
     var result =
         await collection.find({'user': prefs.getString('username')}).toList();
 
     List<Appointment> appointment = [];
+    print(result);
     for (var i = 0; i < result.length; i++) {
+      for(var j=0; j< result[i]['startTime'].length;j++){
       appointment.add(_getClassAppointments(result[i]['className'],
-          result[i]['startTime'], result[i]['endTime'], result[i]['date']));
+          result[i]['startTime'][j], result[i]['endTime'][j], result[i]['date'][j],colors[i]));}
     }
     conn.close();
-    return appointment;
+    setState(() {
+      _appointments = appointment;
+    });
+  }
+
+  void showDetailPopUp(String name, List<dynamic>? appointments) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return TimeDetailsPopup(
+          Name: name,
+          appointments: appointments,
+        );
+      },
+    ).then((value) {
+      if (value != null && value) {
+        // enterParty(post);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-            width: 400,
-            height: 370,
-            child: SfCalendar(
-              view: CalendarView.week,
-              timeSlotViewSettings: const TimeSlotViewSettings(
-                  timeIntervalHeight: 30,
-                  timeIntervalWidth: 10,
-
-                  startHour: 09,
-                  endHour: 18,
-                  timeFormat: "hh:mm"),
-              dataSource: _getCalendarDataSource(),
-              headerDateFormat: 'yyyy년 M월',
-            )),
-      ],
-    );
+    return SizedBox(
+        width: 400,
+        height: 370,
+        child: SfCalendar(
+          view: CalendarView.week,
+          timeSlotViewSettings: const TimeSlotViewSettings(
+              timeIntervalHeight: 30,
+              timeIntervalWidth: 10,
+              startHour: 09,
+              endHour: 18,
+              timeFormat: "hh:mm"),
+          dataSource: _getCalendarDataSource(),
+          headerDateFormat: 'yyyy년 M월',
+          onLongPress: (detail) {
+            print(detail.appointments?[0]);
+            showDetailPopUp(
+                detail.appointments?[0].subject, detail.appointments);
+          },
+        ));
   }
 
   _DataSource _getCalendarDataSource() {
@@ -97,7 +100,7 @@ class TimeTableState extends State<TimeTable> {
   }
 
   Appointment _getClassAppointments(
-      String subjectName, String startTime, String endTime, String day) {
+      String subjectName, String startTime, String endTime, String day,Color color) {
     List<int> startAt = [
       int.parse(startTime.split(":")[0]),
       int.parse(startTime.split(":")[1])
@@ -113,15 +116,14 @@ class TimeTableState extends State<TimeTable> {
     // 예를 들면, 'eventName'과 'startTime', 'endTime' 등을 포함하는 Appointment 객체를 만들 수 있습니다.
     Appointment appointment = Appointment(
       subject: subjectName,
-      startTime: DateTime(startDate.year, 3, 3,startAt[0],startAt[1],0),
-      endTime: DateTime(startDate.year, 3, 3,
-          endAt[0], endAt[1], 0),
-      color: Colors.blue,
+      startTime: DateTime(startDate.year, 3, 3, startAt[0], startAt[1], 0),
+      endTime: DateTime(startDate.year, 3, 3, endAt[0], endAt[1], 0),
+      color:color,
+      notes: "",
       recurrenceRule: 'FREQ=WEEKLY;BYDAY=$day;',
     );
 
     return appointment;
-
   }
 
   //todo 파티를 시간표에 추가하기 위한 함수
@@ -150,7 +152,6 @@ class TimeTableState extends State<TimeTable> {
   //
   //   _appointments.add(appointment);
   // }
-
 
   void getTempAppointments(
       String subjectName, String startTime, String endTime, String day) {

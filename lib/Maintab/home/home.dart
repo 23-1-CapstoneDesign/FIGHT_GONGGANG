@@ -1,6 +1,6 @@
 import 'package:fighting_gonggang/Maintab/Maintab.dart';
 import 'package:fighting_gonggang/Maintab/home/gallery_policy.dart';
-import 'package:fighting_gonggang/Maintab/timetable/AddClass.dart';
+import 'package:fighting_gonggang/Maintab/timetable/add_class.dart';
 import 'package:flutter/material.dart';
 import 'package:fighting_gonggang/Layout/Dashboard.dart';
 import 'package:fighting_gonggang/Maintab/timetable/Timetable.dart';
@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    var timeTable = TimeTable();
+
     return WillPopScope(
       onWillPop: () async {
         // 이전 페이지로 이동하지 않고 원하는 동작을 수행
@@ -31,7 +31,7 @@ class HomePageState extends State<HomePage> {
           child: ListView(
             shrinkWrap: true,
             children: [
-              timeTable,
+              const TimeTable(),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 ElevatedButton(
                   onPressed: () {
@@ -59,7 +59,7 @@ class HomePageState extends State<HomePage> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(
+               const SizedBox(
                 height: 130,
                 child: Expanded(
                   child: MyParty(),
@@ -75,7 +75,7 @@ class HomePageState extends State<HomePage> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(
+                   const SizedBox(
                       height: 200,
                       child:
                           Row(children: [Expanded(child: GalleryWidget())]))

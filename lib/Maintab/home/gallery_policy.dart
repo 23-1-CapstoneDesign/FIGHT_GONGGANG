@@ -28,21 +28,18 @@ class GalleryWidgetState extends State<GalleryWidget> {
     mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('policy');
-
-    collection
+    var list = await collection
         .find(mongo.where.sortBy('정책 ID', descending: true))
-        .toList()
-        .then((list) {
-      if (mounted) {
-        setState(() {
-          result = list;
-          _dataLoaded = true;
-        });
-      }
-    });
+        .toList();
+    if (mounted) {
+      setState(() {
+        result = list;
+        _dataLoaded = true;
+      });
+    }
+
     conn.close();
   }
-
 
   Future<void> _launchUrl(Uri url) async {
     canLaunchUrl(url).then((value) async {
@@ -278,19 +275,19 @@ class GalleryWidgetState extends State<GalleryWidget> {
             ),
             TextButton(
                 onPressed: policy != null &&
-                    policy['사이트 링크 주소'].toString().contains(".")
+                        policy['사이트 링크 주소'].toString().contains(".")
                     ? () {
-                  if (!policy['사이트 링크 주소'].startsWith('http://') &&
-                      !policy['사이트 링크 주소'].startsWith('https://')) {
-                    Uri? uri =
-                    Uri.tryParse("http://${policy['사이트 링크 주소']}");
-                    if (uri != null && uri.isAbsolute) {
-                      _showConfirmationDialog(uri);
-                    }
-                  } else {
-                    _showConfirmationDialog(policy['사이트 링크 주소']);
-                  }
-                }
+                        if (!policy['사이트 링크 주소'].startsWith('http://') &&
+                            !policy['사이트 링크 주소'].startsWith('https://')) {
+                          Uri? uri =
+                              Uri.tryParse("http://${policy['사이트 링크 주소']}");
+                          if (uri != null && uri.isAbsolute) {
+                            _showConfirmationDialog(uri);
+                          }
+                        } else {
+                          _showConfirmationDialog(policy['사이트 링크 주소']);
+                        }
+                      }
                     : null,
                 child: Text(
                   "사이트 링크:${policy?['사이트 링크 주소']}",
@@ -315,11 +312,12 @@ class GalleryWidgetState extends State<GalleryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal, // 수평 스크롤을 위해 설정
-      itemCount: result?.length,
-      itemBuilder: (BuildContext context, int index) {
-        if (_dataLoaded) {
+    if (_dataLoaded) {
+      //todo
+      return ListView.builder(
+        scrollDirection: Axis.horizontal, // 수평 스크롤을 위해 설정
+        itemCount: result?.length,
+        itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () {
               // 카드를 클릭했을 때 실행되는 코드
@@ -350,7 +348,8 @@ class GalleryWidgetState extends State<GalleryWidget> {
                     result?[index]['정책명'],
                     softWrap: true,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10.0),
@@ -367,9 +366,13 @@ class GalleryWidgetState extends State<GalleryWidget> {
               ),
             ),
           );
-        }
-        return null;
-      },
-    );
+        },
+      );
+    } else {
+      return const Align(child: SizedBox(
+
+        child: CircularProgressIndicator(),
+      ),);
+    }
   }
 }

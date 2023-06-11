@@ -17,11 +17,12 @@ class MyPartyState extends State<MyParty> {
   static final dbUrl = dotenv.env["MONGODB_URL"].toString();
   List<Map<String, dynamic>>? result;
   bool _dataLoaded = false;
-
   @override
   void initState() {
     super.initState();
+    print(result?.length);
     getData();
+
   }
 
 
@@ -32,20 +33,14 @@ class MyPartyState extends State<MyParty> {
     mongo.Db conn = await mongo.Db.create(dbUrl);
     await conn.open();
     mongo.DbCollection collection = conn.collection('party');
+    var list=await collection.find({'nowMembers':{    '\$elemMatch': {'\$eq': prefs.getString('username')}}}).toList();
+    if (mounted) {
+      setState(() {
+        result = list;
+        _dataLoaded=true;
+      });
+    }
 
-    collection
-        .find(   { 'nowMembers': {
-    '\$elemMatch': {'\$eq': prefs.getString('username')}
-    }})
-        .toList()
-        .then((list) {
-      if (mounted) {
-        setState(() {
-          result = list;
-          _dataLoaded = true;
-        });
-      }
-    });
     conn.close();
   }
 
@@ -53,12 +48,12 @@ class MyPartyState extends State<MyParty> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    if(_dataLoaded && result!.isNotEmpty) {
+      return ListView.builder(
       itemCount: result?.length,
       scrollDirection: Axis.horizontal,
       shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
-        if (_dataLoaded) {
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -94,9 +89,18 @@ class MyPartyState extends State<MyParty> {
               ),
             ),
           );
-        }
-        return null;
+
+        // return null;
       },
     );
+    } else if(_dataLoaded){
+      return Align(child:Text("참여한 모임이 없습니다."));
+
+    }else {
+      return const Align(child: SizedBox(
+
+        child: CircularProgressIndicator(),
+      ),);
+    }
   }
 }

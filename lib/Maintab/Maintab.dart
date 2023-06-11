@@ -24,7 +24,7 @@ class MainTabPageState extends State<MainTabPage> {
     const HomePage(),
     const PartyPage(),
     const  MapPage(),
-    const  CommunityPage(),
+      CommunityPage(),
     const  MyPage(),
 
   ];

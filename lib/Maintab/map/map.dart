@@ -21,20 +21,21 @@ class MapPage extends StatefulWidget {
   MapPageState createState() => MapPageState();
 }
 
+// class MapPage extends StatelessWidget {
 class MapPageState extends State<MapPage> {
 
-
   static final dbUrl = dotenv.env["MONGODB_URL"].toString();
-  // double max_lat = 36.801758;
-  // double max_lng = 127.069522;
-  // double min_lat = 36.794258;
-  // double min_lng = 127.078673;
+
+  double maxLat = 36.801758;
+  double maxLng = 127.069522;
+  double minLat = 36.794258;
+  double minLng = 127.078673;
   late WebViewController webViewController;
   late Timer _timer;
 
-  int _selectedIndex = -1;
+  int selectedIndex = -1;
 
-
+  bool _isFirst = true;
   bool type = true;
 
   var x = 36.798786;
@@ -49,12 +50,12 @@ class MapPageState extends State<MapPage> {
     [36.798839, 127.078338, "보건관"]
   ];
 
-  final pointBon = [36.800262, 127.074934, "본관"]; //본관 위치
-  final pointGonghak = [36.800171, 127.072652, "공학관"]; //공학관 위치
-  final pointWonhwa = [36.800080, 127.077211, "원화관"]; //원화관 위치
-  final pointJayeon = [36.798791, 127.074048, "자연관"]; //자연관 위치
-  final pointInmoon = [36.798791, 127.075871, "인문관"]; //인문관 위치
-  final pointBogeon = [36.798839, 127.078338, "보건관"]; //보건관 위치
+  final point_bon = [36.800262, 127.074934, "본관"]; //본관 위치
+  final point_gonghak = [36.800171, 127.072652, "공학관"]; //공학관 위치
+  final point_wonhwa = [36.800080, 127.077211, "원화관"]; //원화관 위치
+  final point_jayeon = [36.798791, 127.074048, "자연관"]; //자연관 위치
+  final point_inmoon = [36.798791, 127.075871, "인문관"]; //인문관 위치
+  final point_bogeon = [36.798839, 127.078338, "보건관"]; //보건관 위치
 
   Future<String> test() async {
     mongo.Db conn = await mongo.Db.create(dbUrl);
@@ -112,13 +113,13 @@ class MapPageState extends State<MapPage> {
               markers[0].setMap(null);
       }
 
-      addMarker(new kakao.maps.LatLng($x , $y ));
+      addMarker(new kakao.maps.LatLng(${x} , ${y} ));
       setTimeout(()=>{
         deleteMarker();
-      }, 400);
+      }, 300);
     ''');
 
-
+            _isFirst = false;
           });
         }
       });
@@ -129,7 +130,7 @@ class MapPageState extends State<MapPage> {
 
   @override
   void dispose() {
-    _timer.cancel(); // 타이머 취소
+    _timer?.cancel(); // 타이머 취소
     super.dispose();
   }
 
@@ -144,9 +145,9 @@ class MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("지도")),
+      appBar: AppBar(title: Text("지도")),
       body: Column(children: [
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Align(
             child: KakaoMapView(
                 width: 350,
@@ -160,7 +161,7 @@ class MapPageState extends State<MapPage> {
                 showMapTypeControl: true,
                 showZoomControl: true,
                 markerImageURL:
-                    'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
                 customScript: '''
 
             var markers = [];
@@ -182,12 +183,12 @@ var infowindow = new kakao.maps.InfoWindow({
     removable : iwRemoveable
 });
 
-      addMarker(new kakao.maps.LatLng(${pointBon[0]},${pointBon[1]}));
-      addMarker(new kakao.maps.LatLng(${pointGonghak[0]},${pointGonghak[1]}));
-      addMarker(new kakao.maps.LatLng(${pointInmoon[0]},${pointInmoon[1]}));
-      addMarker(new kakao.maps.LatLng(${pointJayeon[0]},${pointJayeon[1]}));
-      addMarker(new kakao.maps.LatLng(${pointWonhwa[0]},${pointWonhwa[1]}));  
-      addMarker(new kakao.maps.LatLng(${pointBogeon[0]},${pointBogeon[1]}));        
+      addMarker(new kakao.maps.LatLng(${point_bon[0]},${point_bon[1]}));
+      addMarker(new kakao.maps.LatLng(${point_gonghak[0]},${point_gonghak[1]}));
+      addMarker(new kakao.maps.LatLng(${point_inmoon[0]},${point_inmoon[1]}));
+      addMarker(new kakao.maps.LatLng(${point_jayeon[0]},${point_jayeon[1]}));
+      addMarker(new kakao.maps.LatLng(${point_wonhwa[0]},${point_wonhwa[1]}));  
+      addMarker(new kakao.maps.LatLng(${point_bogeon[0]},${point_bogeon[1]}));        
       kakao.maps.event.addListener(markers[0], 'click', (function() {
       
 
@@ -240,55 +241,50 @@ var infowindow = new kakao.maps.InfoWindow({
       );
     ''',
                 onTapMarker: (message) {
+
                   try {
                     setState(() {
-                      _selectedIndex = points.indexWhere(
-                          (element) => element[2] == message.message);
+                      selectedIndex = points.indexWhere(
+                              (element) => element[2] == message.message);
                     });
-                  } catch (e) {
-                    e;
-                  }
+                  } catch (e) {}
                 })),
-        const SizedBox(
+        SizedBox(
           height: 20,
         ),
-        ListView(
-          children: [
-            ListView.builder(
-                scrollDirection: Axis.horizontal, // 수평 스크롤을 위해 설정
-                itemCount: points.length + 1,
-                itemBuilder: (BuildContext context, int index) {
-                  if (index < points.length) {
-                    return ElevatedButton(
-                        onPressed: () {
-                          webViewController.runJavascript('''
+        SizedBox(
+          height: 20,
+          child: ListView.builder(
+              scrollDirection: Axis.horizontal, // 수평 스크롤을 위해 설정
+              itemCount: points.length + 1,
+              itemBuilder: (BuildContext context, int index) {
+                if (index < points.length) {
+                  return ElevatedButton(
+                      onPressed: () {
+                        webViewController.runJavascript('''
       map.setCenter(new kakao.maps.LatLng(${points[index][0]}, ${points[index][1]}));
       ''');
 
-                          setState(() {
-                            _selectedIndex = index;
-                          });
-                        },
-                        child: Text("${points[index][2]}"));
-                  } else {
-                    return ElevatedButton(
-                        onPressed: () {
-                          webViewController.runJavascript('''
-                          map.setCenter(new kakao.maps.LatLng($x, $y));
-                           ''');
-                        },
-                        child: const Text("현위치"));
-                  }
-                })
-          ],
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                      child: Text(points[index][2].toString()));
+                } else {
+                  return ElevatedButton(
+                      onPressed: () {
+                        webViewController.runJavascript('''
+      map.setCenter(new kakao.maps.LatLng(${x}, ${y}));
+      ''');
+                      },
+                      child: Text("현위치"));
+                }
+              }),
         ),
-        const SizedBox(
+        SizedBox(
           height: 30,
         ),
-        FacCard(
-            facility: _selectedIndex != -1
-                ? points[_selectedIndex][2].toString()
-                : ""),
+        FacCard(facility: selectedIndex!=-1?points[selectedIndex][2].toString():""),
       ]),
     );
   }

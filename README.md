@@ -52,7 +52,8 @@ firebase에서 flutter앱 등록 필요
 
 Android,ios등의 폴더는 각 플랫폼의 실행을 위해 생성된 폴더로 권한 부여 등의 역할만 할 뿐 아무것도 없어요.
 
-
+## 개선 해야 할 부분
+- SQLite 적용 - MongoDB에서 받은 데이터를 담아 MongoDB와의 connect를 줄이면 실행 속도가 개선될 것으로 보임.
 
 # author
 장효택-[alwaystaegi](https://github.com/alwaystaegi)
